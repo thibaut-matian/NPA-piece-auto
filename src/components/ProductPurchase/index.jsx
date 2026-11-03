@@ -1,6 +1,6 @@
 import "./index.scss";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addProductToCart } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
@@ -17,6 +17,12 @@ const sameValue = (a, b) =>
 
 export default function ProductPurchase({ product }) {
   const dispatch = useDispatch();
+  const cartQuantity = useSelector((state) =>
+    state.cart.items.reduce(
+      (total, item) => total + (item.id === product.id ? item.quantity : 0),
+      0,
+    ),
+  );
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [selection, setSelection] = useState({});
@@ -58,9 +64,39 @@ export default function ProductPurchase({ product }) {
   const isInStock = selectedVariation
     ? selectedVariation.is_in_stock !== false
     : product.is_in_stock;
-  const canBuy = product.is_purchasable && isInStock && !adding;
+  const maxPurchaseQuantity = Number(product.add_to_cart?.maximum);
+  const remainingQuantity =
+    !product.has_options &&
+    Number.isFinite(maxPurchaseQuantity) &&
+    maxPurchaseQuantity >= 0
+      ? Math.max(0, maxPurchaseQuantity - cartQuantity)
+      : Infinity;
+  const canBuy =
+    product.is_purchasable &&
+    isInStock &&
+    !adding &&
+    remainingQuantity > 0 &&
+    quantity <= remainingQuantity;
+
+  useEffect(() => {
+    setQuantity((current) =>
+      Math.min(current, Math.max(1, remainingQuantity)),
+    );
+  }, [remainingQuantity]);
 
   const addToCart = async (goToCart = false) => {
+    if (quantity > remainingQuantity) {
+      dispatch(
+        showToast(
+          remainingQuantity > 0
+            ? `Il ne reste que ${remainingQuantity} unité(s) disponible(s).`
+            : "La quantité disponible est déjà dans votre panier.",
+        ),
+      );
+      setQuantity(Math.max(1, remainingQuantity));
+      return;
+    }
+
     setAdding(true);
     const variation = {};
     Object.entries(selection).forEach(([attributeName, term]) => {
@@ -206,7 +242,7 @@ export default function ProductPurchase({ product }) {
             <button
               type="button"
               onClick={() => setQuantity(quantity + 1)}
-              disabled={!canBuy}
+              disabled={!canBuy || quantity >= remainingQuantity}
               aria-label="Augmenter la quantité"
             >
               +

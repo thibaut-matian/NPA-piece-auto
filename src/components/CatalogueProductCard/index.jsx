@@ -1,6 +1,6 @@
 import "./index.scss";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addProductToCart } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
@@ -31,8 +31,25 @@ function getAvailability(product) {
 
 export default function CatalogueProductCard({ product }) {
   const dispatch = useDispatch();
+  const cartQuantity = useSelector((state) =>
+    state.cart.items.reduce(
+      (total, item) => total + (item.id === product.id ? item.quantity : 0),
+      0,
+    ),
+  );
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
+  const maxPurchaseQuantity = Number(product.add_to_cart?.maximum);
+  const remainingQuantity =
+    Number.isFinite(maxPurchaseQuantity) && maxPurchaseQuantity >= 0
+      ? Math.max(0, maxPurchaseQuantity - cartQuantity)
+      : Infinity;
+
+  useEffect(() => {
+    setQuantity((current) =>
+      Math.min(current, Math.max(1, remainingQuantity)),
+    );
+  }, [remainingQuantity]);
 
   const name = stripHtml(product.name);
   const brand = stripHtml(product.brands?.[0]?.name);
@@ -52,6 +69,18 @@ export default function CatalogueProductCard({ product }) {
   const productUrl = `/product/${product.id}`;
 
   const addToCart = async () => {
+    if (quantity > remainingQuantity) {
+      dispatch(
+        showToast(
+          remainingQuantity > 0
+            ? `Il ne reste que ${remainingQuantity} unité(s) disponible(s).`
+            : "La quantité disponible est déjà dans votre panier.",
+        ),
+      );
+      setQuantity(Math.max(1, remainingQuantity));
+      return;
+    }
+
     setAdding(true);
     const result = await dispatch(
       addProductToCart({ productId: product.id, quantity, variation: {} }),
@@ -173,7 +202,7 @@ export default function CatalogueProductCard({ product }) {
                 type="button"
                 onClick={() => setQuantity(quantity + 1)}
                 aria-label="Augmenter la quantité"
-                disabled={!product.is_purchasable}
+                disabled={!product.is_purchasable || quantity >= remainingQuantity}
               >
                 +
               </button>
@@ -183,7 +212,11 @@ export default function CatalogueProductCard({ product }) {
               className="catalogue-card-add"
               onClick={addToCart}
               disabled={
-                !product.is_purchasable || !product.is_in_stock || adding
+                !product.is_purchasable ||
+                !product.is_in_stock ||
+                adding ||
+                remainingQuantity === 0 ||
+                quantity > remainingQuantity
               }
               title="Ajouter au panier"
               aria-label={`Ajouter ${name} au panier`}

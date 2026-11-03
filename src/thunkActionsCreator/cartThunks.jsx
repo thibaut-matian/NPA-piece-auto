@@ -91,12 +91,23 @@ export const addProductToCart = createAsyncThunk(
         },
       );
 
-      if (!response.ok) {
-        throw new Error("Impossible d'ajouter l'article au panier.");
-      }
       // Si WooCommerce renouvelle le jeton dans la réponse, on met à jour le store et le localStorage
       const nonce = response.headers.get("Nonce");
       const cart = await response.json();
+      if (!response.ok) {
+        const message = cart.message || "";
+        const remainingStock = message.match(/\((\d+) remaining\)/i)?.[1];
+        if (/not enough stock|cannot add that amount/i.test(message)) {
+          throw new Error(
+            remainingStock
+              ? `Stock insuffisant : ${remainingStock} unité(s) restante(s).`
+              : "Stock insuffisant pour cette quantité.",
+          );
+        }
+        throw new Error(
+          message || "Impossible d'ajouter l'article au panier.",
+        );
+      }
       return { ...cart, nonce };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
