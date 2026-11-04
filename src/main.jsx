@@ -23,7 +23,7 @@ import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import NewPassword from "./pages/NewPassword";
 import Profile from "./pages/Profile";
-import Wishlist from "./pages/Wishlist"; // TEMP: wishlist testing, remove before commit
+import Wishlist from "./pages/Wishlist";
 import BlogPage from "./pages/Blog";
 import SinglePost from "./pages/SinglePost";
 import Contact from "./pages/Contact";
@@ -93,7 +93,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/blog/:slug" element={<SinglePost />} />
           <Route path="/success/:orderId" element={<Success />} />
           <Route path="/profile" element={<Profile />} />
-          {/* TEMP: wishlist testing, remove before commit */}
           <Route path="/wishlist" element={<Wishlist />} />
         </Routes>
         <Footer />

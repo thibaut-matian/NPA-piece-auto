@@ -26,7 +26,7 @@ export default function Header() {
   const token = useSelector((state) => state.user.isAuthenticated);
   const cartItems = useSelector((state) => state.cart.items);
   const cartTotals = useSelector((state) => state.cart.totals);
-  // const wishlistItems = useSelector((state) => state.wishlist.items);
+  const wishlistItems = useSelector((state) => state.wishlist.items);
 
   const cartCount = cartItems.reduce(
     (total, item) => total + (Number(item.quantity) || 0),
@@ -114,7 +114,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* <Link
+        <Link
           to="/wishlist"
           className="header-wishlist"
           aria-label={`Favoris (${wishlistItems.length})`}
@@ -127,7 +127,7 @@ export default function Header() {
               {wishlistItems.length > 9 ? "9+" : wishlistItems.length}
             </span>
           )}
-        </Link> */}
+        </Link>
 
         <Link
           to="/panier"
