@@ -17,6 +17,16 @@ Les fichiers `.env` ne sont pas versionnés. Copiez `.env.example` pour créer l
 
 Relancez `npm run dev` après chaque modification d'un fichier `.env`.
 
+### Performances locales avec Wamp
+
+Si les appels WordPress prennent plusieurs secondes, verifiez qu'OPcache est
+effectivement charge dans le PHP utilise par Apache, pas seulement dans PHP CLI.
+Pour l'utilisation courante, `xdebug.mode=off` dans ce PHP evite le cout de
+l'instrumentation. Reactivez Xdebug lorsque vous avez besoin de ses diagnostics.
+Redemarrez le service Apache apres ces changements ; la premiere requete peut
+rester plus lente pendant le remplissage du cache. Ces reglages Wamp sont locaux
+et ne sont pas inclus dans le depot.
+
 ## Panier et connexion
 
 A l'inscription ou a la connexion, les articles du panier invite sont repris dans
