@@ -154,7 +154,7 @@ add_action('rest_api_init', function () {
 /* ---------- Routes ---------- */
 
 // Crée le jeton via le plugin JWT, dépose le cookie et renvoie ce dont le front a besoin
-function npa_auth_issue($username, $password)
+function npa_auth_issue($username, $password, $remember = false)
 {
     $token_request = new WP_REST_Request('POST', '/jwt-auth/v1/token');
     $token_request->set_param('username', $username);
@@ -167,7 +167,8 @@ function npa_auth_issue($username, $password)
     $data = $token_response->get_data();
     $jwt  = $data['token'];
     $payload = json_decode(base64_decode(strtr(explode('.', $jwt)[1] ?? '', '-_', '+/')), true);
-    npa_auth_set_cookie($jwt, (int) ($payload['exp'] ?? time() + WEEK_IN_SECONDS));
+    $expires = (int) ($payload['exp'] ?? time() + WEEK_IN_SECONDS);
+    npa_auth_set_cookie($jwt, $remember ? $expires : 0);
 
     return rest_ensure_response([
         'profile' => [
@@ -201,10 +202,11 @@ add_action('rest_api_init', function () {
             }
             $username = sanitize_user((string) $request->get_param('username'));
             $password = (string) $request->get_param('password');
+            $remember = rest_sanitize_boolean($request->get_param('remember'));
             if ($username === '' || $password === '') {
                 return new WP_Error('missing_fields', 'Email et mot de passe requis.', ['status' => 400]);
             }
-            return npa_auth_issue($username, $password);
+            return npa_auth_issue($username, $password, $remember);
         },
     ]);
 

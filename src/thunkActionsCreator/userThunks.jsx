@@ -28,7 +28,7 @@ export const checkSessionThunk = createAsyncThunk(
 
 export const loginThunk = createAsyncThunk(
   "user/login",
-  async ({ username, password }, thunkAPI) => {
+  async ({ username, password, remember }, thunkAPI) => {
     try {
       const response = await apiFetch(
         `${import.meta.env.VITE_API_URL}/wp-json/custom/v1/auth/login`,
@@ -36,7 +36,7 @@ export const loginThunk = createAsyncThunk(
           method: "POST",
           csrf: csrfOf(thunkAPI),
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ username, password, remember }),
         },
       );
       const data = await response.json();
