@@ -2,12 +2,12 @@ import "./index.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { selectShippingRateThunk } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { formatPrice } from "../../utils/formatPrice";
 
 // Textes de site.js correspondant à un mode de livraison WooCommerce
-const findTexts = (rate) =>
-  site.cart.shippingModes.find(
+const findTexts = (rate, shippingModes) =>
+  shippingModes.find(
     (mode) => mode.match === rate.method_id || rate.name.includes(mode.match),
   ) || {};
 
@@ -16,6 +16,7 @@ const ratePrice = (rate) => Number(rate.price || 0) + Number(rate.taxes || 0);
 // "Mode d'obtention de vos pièces" : les modes et leurs prix viennent de WooCommerce
 export default function CartShipping({ allInStock }) {
   const dispatch = useDispatch();
+  const { site } = useSiteContent();
   const { shipping_rates: packages, extensions, loading } = useSelector((state) => state.cart);
   // Modes offerts à partir d'un montant, réglés dans WooCommerce (ex. navette dès 80 €)
   const freeOffers = extensions?.npa?.free_shipping || [];
@@ -37,7 +38,7 @@ export default function CartShipping({ allInStock }) {
       {packages.map((pack) => (
         <div key={pack.package_id} className="cart-shipping-options" role="radiogroup">
           {pack.shipping_rates.map((rate) => {
-            const texts = findTexts(rate);
+            const texts = findTexts(rate, site.cart.shippingModes);
             const price = ratePrice(rate);
             const isPickup = rate.method_id === "local_pickup";
             const freeOffer = price > 0 && freeOffers.find((offer) => offer.title === rate.name);

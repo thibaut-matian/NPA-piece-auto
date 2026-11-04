@@ -6,6 +6,7 @@ import beltIcon from "../../assets/icons/belt.svg";
 import clutchIcon from "../../assets/icons/clutch.svg";
 import springIcon from "../../assets/icons/spring.svg";
 import oilIcon from "../../assets/icons/oil.svg";
+import useSiteContent from "../../hooks/useSiteContent";
 
 // slug : identifiant de la catégorie WooCommerce correspondante
 const families = [
@@ -19,23 +20,26 @@ const families = [
 
 export default function HomeFamilies() {
   const openCategory = useOpenCategory();
+  const { home } = useSiteContent();
+  const displayedFamilies = families.map((family, index) => ({
+    ...family,
+    title: home.familyTitles[index] || family.title,
+    text: home.familyDescriptions[index] || family.text,
+  }));
 
   return (
     <section className="home-families">
       <div className="home-families-inner">
         <div className="home-families-header">
           <div className="home-families-heading">
-            <span className="home-families-eyebrow">Catalogue express</span>
-            <h2 className="home-families-title">Les grandes familles en stock</h2>
+            <span className="home-families-eyebrow">{home.familiesEyebrow}</span>
+            <h2 className="home-families-title">{home.familiesTitle}</h2>
           </div>
-          <p className="home-families-text">
-            Références de première monte certifiées disponibles immédiatement au
-            comptoir ou en livraison rapide.
-          </p>
+          <p className="home-families-text">{home.familiesDescription}</p>
         </div>
 
         <div className="home-families-grid">
-          {families.map((family) => (
+          {displayedFamilies.map((family) => (
             <button
               key={family.slug}
               type="button"

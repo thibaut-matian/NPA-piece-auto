@@ -1,9 +1,10 @@
 import "./index.scss";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import storeIcon from "../../assets/icons/store.svg";
 
 // Encart "Votre magasin physique" affiché en bas de la fiche produit
 export default function StoreContact() {
+  const { site } = useSiteContent();
   return (
     <section className="store-contact">
       <div className="store-contact-content">

@@ -14,6 +14,7 @@ import {
 } from "./thunkActionsCreator/userThunks";
 import { fetchSiteThunk } from "./thunkActionsCreator/siteThunk";
 import { fetchWishlistThunk } from "./thunkActionsCreator/wishlistThunks";
+import { showToast } from "./slices/toastSlice";
 
 import Home from "./pages/Home";
 import Store from "./pages/Store";
@@ -42,7 +43,15 @@ import Modal from "./components/Modal";
 import "./index.scss";
 import ScrollToTop from "./components/ScrollToTop";
 
-store.dispatch(fetchSiteThunk());
+store.dispatch(fetchSiteThunk()).unwrap().catch((error) => {
+  store.dispatch(
+    showToast(
+      typeof error === "string"
+        ? error
+        : "Impossible de charger les contenus du site depuis WordPress.",
+    ),
+  );
+});
 
 // Ancien stockage du jeton (avant le cookie HttpOnly) : on le supprime du navigateur
 try {

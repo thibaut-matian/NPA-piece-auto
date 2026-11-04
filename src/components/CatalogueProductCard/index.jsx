@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addProductToCart } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { formatPrice } from "../../utils/formatPrice";
 import { stripHtml } from "../../utils/stripHtml";
 import WishlistButton from "../WishlistButton";
 
 // Disponibilité affichée sous la description
-function getAvailability(product) {
+function getAvailability(product, city) {
   if (product.is_on_backorder) {
     return {
       text: "Sur commande",
@@ -21,7 +21,7 @@ function getAvailability(product) {
   // La quantité en stock n'est jamais affichée au client
   if (product.is_in_stock) {
     return {
-      text: `En stock magasin ${site.address.city}`,
+      text: `En stock magasin ${city}`,
       detail: "Retrait 2h",
       status: "in-stock",
     };
@@ -30,6 +30,7 @@ function getAvailability(product) {
 }
 
 export default function CatalogueProductCard({ product }) {
+  const { site } = useSiteContent();
   const dispatch = useDispatch();
   const cartQuantity = useSelector((state) =>
     state.cart.items.reduce(
@@ -64,7 +65,7 @@ export default function CatalogueProductCard({ product }) {
   const specs = (product.attributes || [])
     .filter((attribute) => !attribute.has_variations && attribute.terms?.length)
     .slice(0, 4);
-  const availability = getAvailability(product);
+  const availability = getAvailability(product, site.address.city);
   const { prices } = product;
   const productUrl = `/product/${product.id}`;
 

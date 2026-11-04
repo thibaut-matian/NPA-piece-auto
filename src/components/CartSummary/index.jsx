@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { selectShippingRateThunk } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { formatPrice } from "../../utils/formatPrice";
 
 // "Récapitulatif financier" : tous les montants sont calculés par WooCommerce
 export default function CartSummary() {
+  const { site } = useSiteContent();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { totals, shipping_rates: packages, needs_shipping, loading } = useSelector(

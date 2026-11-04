@@ -1,8 +1,10 @@
 import "./index.scss";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import proIcon from "../../assets/icons/pro.svg";
 
 export default function ProBanner() {
+  const { site, home } = useSiteContent();
+
   return (
     <section className="pro-banner">
       <div className="pro-banner-inner">
@@ -12,12 +14,11 @@ export default function ProBanner() {
           </span>
           <div className="pro-banner-text">
             <div className="pro-banner-heading">
-              <h2 className="pro-banner-title">Espace pros &amp; garages PACA</h2>
-              <span className="pro-banner-tag">Tarifs ateliers</span>
+              <h2 className="pro-banner-title">{home.proTitle}</h2>
+              <span className="pro-banner-tag">{home.proTag}</span>
             </div>
             <span className="pro-banner-description">
-              Navettes quotidiennes express, compte avec facturation mensuelle
-              et remises directes.
+              {home.proDescription}
             </span>
           </div>
         </div>

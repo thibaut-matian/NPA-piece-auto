@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setFilters } from "../../slices/filtersSlice";
 import { fetchVehicleChildrenThunk } from "../../thunkActionsCreator/vehiclesThunks";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 
 // Liste déroulante remplie uniquement avec les véhicules créés dans WordPress
 function VehicleSelect({ label, placeholder, options, value, onChange, disabled }) {
@@ -27,6 +27,7 @@ function VehicleSelect({ label, placeholder, options, value, onChange, disabled 
 }
 
 export default function VehicleSearch() {
+  const { site } = useSiteContent();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const byParent = useSelector((state) => state.vehicles.byParent);

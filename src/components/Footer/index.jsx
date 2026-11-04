@@ -1,17 +1,19 @@
 import "./index.scss";
 
 import { Link } from "react-router-dom";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import logo from "../../assets/images/logo.png";
 
 export default function Footer() {
+  const { site } = useSiteContent();
+
   return (
     <>
       <footer className="footer">
         <div className="footer-grid">
           <div className="footer-col">
             <Link to="/" className="footer-brand">
-              <img src={logo} alt={site.name} className="footer-logo" />
+              <img src={site.logoUrl || logo} alt={site.name} className="footer-logo" />
               <span className="footer-brand-name">{site.name}</span>
             </Link>
             <span className="footer-text">{site.description}</span>

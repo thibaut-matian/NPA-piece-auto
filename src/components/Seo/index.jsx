@@ -23,13 +23,21 @@ function Seo({
     name,
     description: siteDescription,
     faviconUrl,
+    contentFields,
   } = useSelector((state) => state.site);
 
   const cleanTitle = stripHtml(title);
   const cleanDescription = stripHtml(description);
-  const finalTitle = cleanTitle || stripHtml(name) || site.name;
+  const finalTitle =
+    cleanTitle ||
+    stripHtml(contentFields?.global_site_name) ||
+    stripHtml(name) ||
+    site.name;
   const finalDescription =
-    cleanDescription || stripHtml(siteDescription) || site.description;
+    cleanDescription ||
+    stripHtml(contentFields?.global_description) ||
+    stripHtml(siteDescription) ||
+    site.description;
   const cardType = image ? "summary_large_image" : "summary";
 
   return (

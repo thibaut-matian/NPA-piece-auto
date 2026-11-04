@@ -1,11 +1,13 @@
 import "./index.scss";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import storeIcon from "../../assets/icons/store.svg";
 import clockIcon from "../../assets/icons/clock.svg";
 import phoneIcon from "../../assets/icons/phone.svg";
 
-// Coordonnées du comptoir à côté du formulaire de contact (textes dans site.js)
+// Coordonnées du comptoir à côté du formulaire de contact.
 export default function ContactInfo() {
+  const { site } = useSiteContent();
+
   return (
     <aside className="contact-info">
       <div className="contact-info-block">

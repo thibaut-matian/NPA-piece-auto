@@ -1,11 +1,12 @@
 import "./index.scss";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import storeIcon from "../../assets/icons/store.svg";
 import truckIcon from "../../assets/icons/truck.svg";
 import shieldIcon from "../../assets/icons/shield.svg";
 
 // "Et maintenant ?" : retrait ou livraison, et ce qu'il reste à payer
 export default function OrderNextSteps({ order }) {
+  const { site } = useSiteContent();
   const isPickup = order.shipping?.method_id === "local_pickup";
   const payAtCounter = order.payment_method === "cod";
   const address = order.shipping_address;

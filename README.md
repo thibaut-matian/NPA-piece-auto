@@ -24,9 +24,17 @@ Relancez `npm run dev` après chaque modification d'un fichier `.env`.
 ## Config wordpress
 
 1. creez un dossier /wooc sur le server pour deployer wordpress/woocommerce.
-2. installez les plug-in WooCommerce, WooCommerce Stripe Gateway, WooCommerce Tax et JWT Authentication for WP-API.
+2. installez les plug-in WooCommerce, WooCommerce Stripe Gateway, WooCommerce Tax, JWT Authentication for WP-API et Advanced Custom Fields (version gratuite).
 3. renseignez le fichier wp-config.php.
 4. copiez le dossier /mu-plugins dans /wp-content.
+
+## Contenus modifiables
+
+Avec ACF activé et les fichiers `mu-plugins` installés :
+
+- **Pages > Accueil** : coordonnées, horaires, bandeau, textes de l’accueil et message de confirmation du formulaire de contact. La page « Accueil » est créée automatiquement si elle n’existe pas.
+- **Produits > Modifier un produit** : sous-titre, note de compatibilité et logo de marque personnalisés. Le titre, les descriptions, les images et les données commerciales restent gérés dans WooCommerce.
+- **Pages Contact et légales** : des brouillons vides sont créés automatiquement s’ils n’existent pas. Rédigez leur contenu dans WordPress puis publiez-les ; le front-end récupère le contenu des pages publiées. Les textes légaux doivent être fournis et validés par le propriétaire du site.
 
 ## Wireframes
 

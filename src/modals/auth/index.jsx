@@ -4,7 +4,7 @@ import { updateModalProps } from "../../slices/modalSlice";
 import AuthForm from "../../components/AuthForm";
 import ResetPasswordForm from "../../components/ResetPasswordForm/ResetPasswordForm";
 import logo from "../../assets/images/logo.png";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 
 const titles = {
   login: {
@@ -28,6 +28,7 @@ const tabs = [
 
 export default function AuthModalContent({ view = "login", ...props }) {
   const dispatch = useDispatch();
+  const { site } = useSiteContent();
   const { title, subtitle } = titles[view] || titles.login;
 
   return (

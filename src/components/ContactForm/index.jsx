@@ -2,14 +2,14 @@ import "./index.scss";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { normalizeVehicle } from "../../utils/vehicleCheck";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[0-9+\s.\-()]{6,20}$/;
 
 // Mêmes règles que mu-plugins/contact.php : le serveur revérifie tout
-const validate = (form) => {
+const validate = (form, subjects) => {
   const errors = {};
   if (!form.name.trim()) errors.name = "Indiquez votre nom.";
   if (!emailPattern.test(form.email.trim()))
@@ -18,7 +18,7 @@ const validate = (form) => {
     errors.phone = "Numéro de téléphone invalide.";
   }
   if (
-    !site.contact.subjects.some((subject) => subject.value === form.subject)
+    !subjects.some((subject) => subject.value === form.subject)
   ) {
     errors.subject = "Choisissez un sujet.";
   }
@@ -38,6 +38,7 @@ const validate = (form) => {
 // Formulaire de contact : envoie le message à WordPress (route /custom/v1/contact)
 export default function ContactForm() {
   const [searchParams] = useSearchParams();
+  const { site } = useSiteContent();
   const profile = useSelector((state) => state.user.profile);
   const savedVehicle = useSelector((state) => state.cart.vehicleCheck);
 
@@ -67,7 +68,7 @@ export default function ContactForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validation = validate(form);
+    const validation = validate(form, site.contact.subjects);
     setErrors(validation);
     if (Object.keys(validation).length > 0) return;
 
