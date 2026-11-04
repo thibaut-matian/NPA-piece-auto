@@ -44,7 +44,7 @@ export const fetchSiteThunk = createAsyncThunk(
 
       thunkAPI.dispatch(setSite(siteData));
 
-      return formattedData;
+      return siteData;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

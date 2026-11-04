@@ -7,6 +7,7 @@ import {
   fetchCurrentUserOrdersThunk,
 } from "../thunkActionsCreator/userThunks";
 import { initializeCartThunk } from "../thunkActionsCreator/cartThunks";
+import { resetCartToken } from "../slices/cartSlice";
 import { mergeGuestWishlistThunk } from "../thunkActionsCreator/wishlistThunks";
 import { logout } from "../slices/userSlice";
 import { resetToGuestWishlist } from "../slices/wishlistSlice";
@@ -25,6 +26,7 @@ cartIdentityListener.startListening({
     registerThunk.fulfilled.match(action) ||
     logout.match(action),
   effect: async (action, listenerApi) => {
+    listenerApi.dispatch(resetCartToken());
     listenerApi.dispatch(initializeCartThunk());
 
     if (logout.match(action)) {

@@ -3,13 +3,19 @@ import { apiFetch } from "../utils/apiFetch";
 
 // Client connecté : le cookie part avec apiFetch, le code CSRF est ajouté ici
 const buildCartHeaders = (thunkAPI, currentNonce) => {
-  const csrf = thunkAPI.getState().user.csrf;
+  const { cart, user } = thunkAPI.getState();
   return {
     "Content-Type": "application/json",
     ...(currentNonce && { Nonce: currentNonce }),
-    ...(csrf && { "X-NPA-CSRF": csrf }),
+    ...(cart.cartToken && { "Cart-Token": cart.cartToken }),
+    ...(user.csrf && { "X-NPA-CSRF": user.csrf }),
   };
 };
+
+const getCartSession = (response) => ({
+  nonce: response.headers.get("Nonce"),
+  cartToken: response.headers.get("Cart-Token"),
+});
 
 export const initializeCartThunk = createAsyncThunk(
   "cart/initialize",
@@ -17,13 +23,16 @@ export const initializeCartThunk = createAsyncThunk(
     try {
       const response = await apiFetch(
         `${import.meta.env.VITE_API_URL}/wp-json/wc/store/v1/cart`,
+        {
+          headers: buildCartHeaders(thunkAPI, thunkAPI.getState().cart.nonce),
+        },
       );
       if (!response.ok) {
         throw new Error("Impossible de récupérer le panier initial.");
       }
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -51,10 +60,10 @@ export const emptyCartThunk = createAsyncThunk(
         throw new Error("Impossible de vider le panier.");
       }
 
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
       cart.items = [];
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -92,7 +101,7 @@ export const addProductToCart = createAsyncThunk(
       );
 
       // Si WooCommerce renouvelle le jeton dans la réponse, on met à jour le store et le localStorage
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
       if (!response.ok) {
         const message = cart.message || "";
@@ -108,7 +117,7 @@ export const addProductToCart = createAsyncThunk(
           message || "Impossible d'ajouter l'article au panier.",
         );
       }
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -138,9 +147,9 @@ export const deleteProductFromCart = createAsyncThunk(
         throw new Error("Impossible de supprimer l'article du panier.");
       }
       // Si WooCommerce renouvelle le jeton dans la réponse, on met à jour le store et le localStorage
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -187,9 +196,9 @@ export const substractProductFromCart = createAsyncThunk(
         throw new Error("Impossible de modifier l'article.");
       }
 
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -220,8 +229,8 @@ export const applyCouponThunk = createAsyncThunk(
         throw new Error(cart.message || "Ce code promo n'est pas valide.");
       }
 
-      const nonce = response.headers.get("Nonce");
-      return { ...cart, nonce };
+      const session = getCartSession(response);
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -251,9 +260,9 @@ export const selectShippingRateThunk = createAsyncThunk(
         throw new Error("Impossible de choisir ce mode de livraison.");
       }
 
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -283,9 +292,9 @@ export const removeCouponThunk = createAsyncThunk(
         throw new Error("Impossible de retirer ce code promo.");
       }
 
-      const nonce = response.headers.get("Nonce");
+      const session = getCartSession(response);
       const cart = await response.json();
-      return { ...cart, nonce };
+      return { ...cart, ...session };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
