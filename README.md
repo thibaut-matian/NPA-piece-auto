@@ -17,6 +17,17 @@ Les fichiers `.env` ne sont pas versionnés. Copiez `.env.example` pour créer l
 
 Relancez `npm run dev` après chaque modification d'un fichier `.env`.
 
+## Panier et connexion
+
+A l'inscription ou a la connexion, les articles du panier invite sont repris dans
+le panier du compte via l'API WooCommerce. Pour un meme article ou une meme
+variation, la quantite la plus elevee des deux paniers est conservee, sans cumul
+ni doublon. Les articles deja presents uniquement dans le compte sont conserves.
+Les codes promotionnels sont revalides par WooCommerce et le mode de livraison
+invite est repris s'il reste disponible. Un echec de reprise est signale au client.
+
+Tests de regression du changement d'identite : `node --test`.
+
 ## Build
 
 `npm run build`

@@ -69,9 +69,13 @@ export const cartSlice = createSlice({
         : null,
     _snapshot: null,
     loading: false,
+    restoring: false,
     error: null,
   },
   reducers: {
+    setRestoringCart: (state, action) => {
+      state.restoring = action.payload;
+    },
     setVehicleCheck: (state, action) => {
       state.vehicleCheck = action.payload;
       try {
@@ -183,4 +187,4 @@ export const cartSlice = createSlice({
 });
 
 export const cartActions = cartSlice.actions;
-export const { resetCartToken, setVehicleCheck } = cartSlice.actions;
+export const { resetCartToken, setVehicleCheck, setRestoringCart } = cartSlice.actions;

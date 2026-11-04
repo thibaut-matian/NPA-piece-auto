@@ -3,16 +3,19 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CheckoutSteps from "../../components/CheckoutSteps";
 import StripeWrapper from "../../components/StripeWrapper";
+import Loader from "../../components/Loader";
 
 // Page /commande : coordonnées et paiement (formulaire existant, visuel à refaire)
 export default function Checkout() {
-  const items = useSelector((state) => state.cart.items);
+  const { items, loading, restoring } = useSelector((state) => state.cart);
 
   return (
     <main className="checkout-page">
       <div className="checkout-page-inner">
         <CheckoutSteps current={2} />
-        {items.length === 0 ? (
+        {restoring || (items.length === 0 && loading) ? (
+          <Loader size="lg" />
+        ) : items.length === 0 ? (
           <div className="checkout-page-empty">
             <p className="checkout-page-empty-text">Votre panier est vide.</p>
           </div>
