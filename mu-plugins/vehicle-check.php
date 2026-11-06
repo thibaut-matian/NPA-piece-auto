@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Vérification de compatibilité : l'immatriculation ou le VIN saisi dans le panier
+ * Vérification de compatibilité : l'immatriculation ou le VIN saisi au checkout
  * arrive avec la commande (extensions.npa.vehicle_check de l'API Store /checkout).
  * Il est enregistré sur la commande et affiché au magasin : fiche de la commande
  * dans l'admin et e-mails de commande.

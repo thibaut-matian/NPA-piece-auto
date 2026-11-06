@@ -148,7 +148,76 @@
 .footer-legal {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px 20px;
+}
+
+.footer-bottom .footer-cookie-settings {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--text-color-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--dark-color);
+    text-decoration: underline;
+  }
+}
+
+.cookie-notice {
+  position: fixed;
+  z-index: 1000;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: max(16px, env(safe-area-inset-left));
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 720px;
+  margin-left: auto;
+  padding: 20px;
+  border: 1px solid var(--separator-color);
+  border-radius: var(--radius-md);
+  background: var(--white-color);
+  box-shadow: var(--shadow-panel);
+}
+
+.cookie-notice-content {
+  display: grid;
+  gap: 8px;
+}
+
+.cookie-notice-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  color: var(--dark-color);
+}
+
+.cookie-notice-text {
+  margin: 0;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+}
+
+.cookie-notice-text a {
+  color: var(--dark-color);
+  text-decoration: underline;
+}
+
+.cookie-notice-dismiss {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  background: var(--primary-color);
+  color: var(--dark-color);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 @include tablet {
@@ -157,6 +226,13 @@
   }
 
   .footer-bottom {
+    padding: 16px;
+  }
+
+  .cookie-notice {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
     padding: 16px;
   }
 }
