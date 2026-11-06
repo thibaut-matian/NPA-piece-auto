@@ -1,0 +1,43 @@
+.checkout-vehicle-check {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--surface-color);
+  border-radius: var(--radius-md);
+  background-color: var(--white-color);
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.checkout-vehicle-check__description {
+  margin: 0;
+  color: var(--text-color-muted);
+}
+
+.checkout-vehicle-check__label {
+  font-weight: 600;
+}
+
+.checkout-vehicle-check__input {
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-color);
+  font-size: var(--font-size-md);
+
+  &[aria-invalid="true"] {
+    outline: 1px solid var(--danger-color);
+  }
+}
+
+.checkout-vehicle-check__error {
+  margin: 0;
+  color: var(--danger-color);
+  font-size: var(--font-size-sm);
+}
