@@ -55,6 +55,7 @@ Avec ACF activé et les fichiers `mu-plugins` installés :
 
 - **Pages > Accueil** : coordonnées, horaires, bandeau, textes de l’accueil et message de confirmation du formulaire de contact. La page « Accueil » est créée automatiquement si elle n’existe pas.
 - **Produits > Modifier un produit** : sous-titre, note de compatibilité et logo de marque personnalisés. Le titre, les descriptions, les images et les données commerciales restent gérés dans WooCommerce.
+- **Produits > Véhicules** : renseignez la hiérarchie marque, modèle, motorisation, puis associez les véhicules aux produits. Le formulaire d'accueil indique lorsqu'une liste est vide ou ne peut pas être chargée ; la recherche par référence ou mot-clé reste disponible.
 - **Pages Contact et légales** : des brouillons vides sont créés automatiquement s’ils n’existent pas. Rédigez leur contenu dans WordPress puis publiez-les ; le front-end récupère le contenu des pages publiées. Les textes légaux doivent être fournis et validés par le propriétaire du site.
 
 ## Wireframes
