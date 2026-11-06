@@ -106,10 +106,12 @@ Les frais de port se saisissent **TTC** (le mu-plugin `cart.php` en déduit la T
 
   | Page du site | Slug WordPress |
   |---|---|
+  | `/a-propos` | `a-propos` |
   | `/mentions-legales` | `mentions-legales` |
   | `/contact` | `contact` (texte d'introduction) |
-  | `/cgv` | `conditions-generales-de-vente-cgv` |
-  | `/cgu` | `conditions-generales-dutilisation-cgu` |
+  | `/cgv` | `cgv` |
+  | `/cgu` | `cgu` |
+  | `/politique-de-confidentialite` | `politique-de-confidentialite` |
 
   Pour récupérer celles du WordPress de dev : **Outils → Exporter → Pages**, puis **Outils → Importer → WordPress** sur la production. Si une page du même slug existe déjà (même dans la corbeille), la supprimer et vider la corbeille avant d'importer.
 - **Mentions légales** : compléter tous les `[À COMPLÉTER]` (Kbis, directeur de publication, **hébergeur**, **médiateur de la consommation**, obligatoire pour vendre aux particuliers).

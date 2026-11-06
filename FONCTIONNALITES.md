@@ -88,8 +88,12 @@ En local, le navigateur appelle `/woo-api/...` et Vite transmet à WordPress (`v
 - Formulaire : nom, e-mail, téléphone, **sujet** (pièce, devis / VIN, compte pro, suivi de commande, autre), immatriculation ou VIN, message, consentement RGPD. Le lien `/contact?sujet=devis` présélectionne un sujet.
 - Coordonnées du comptoir, horaires, appel, WhatsApp, itinéraire.
 
+### À propos (`/a-propos`)
+- Contenu de présentation modifiable par le client dans la page WordPress `a-propos` ; la page est créée vide en brouillon si elle n'existe pas.
+
 ### Pages de contenu
-- Mentions légales, CGV, CGU : contenu des pages WordPress, mis en forme aux couleurs du site.
+- Mentions légales, CGV, CGU et politique de confidentialité : contenu des pages WordPress, mis en forme aux couleurs du site.
+- Informations cookies : seuls les stockages techniques liés au compte, au panier et au paiement sont actuellement utilisés. Le message peut être fermé puis rouvert depuis le pied de page ; aucun traceur publicitaire ou outil de mesure d'audience n'est intégré.
 - Blog (`/blog`, `/blog/:slug`) : articles WordPress.
 
 ---
