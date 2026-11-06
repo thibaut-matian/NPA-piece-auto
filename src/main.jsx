@@ -14,6 +14,7 @@ import {
 } from "./thunkActionsCreator/userThunks";
 import { fetchSiteThunk } from "./thunkActionsCreator/siteThunk";
 import { fetchWishlistThunk } from "./thunkActionsCreator/wishlistThunks";
+import { showToast } from "./slices/toastSlice";
 
 import Home from "./pages/Home";
 import Store from "./pages/Store";
@@ -23,7 +24,7 @@ import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import NewPassword from "./pages/NewPassword";
 import Profile from "./pages/Profile";
-import Wishlist from "./pages/Wishlist"; // TEMP: wishlist testing, remove before commit
+import Wishlist from "./pages/Wishlist";
 import BlogPage from "./pages/Blog";
 import SinglePost from "./pages/SinglePost";
 import Contact from "./pages/Contact";
@@ -42,7 +43,15 @@ import Modal from "./components/Modal";
 import "./index.scss";
 import ScrollToTop from "./components/ScrollToTop";
 
-store.dispatch(fetchSiteThunk());
+store.dispatch(fetchSiteThunk()).unwrap().catch((error) => {
+  store.dispatch(
+    showToast(
+      typeof error === "string"
+        ? error
+        : "Impossible de charger les contenus du site depuis WordPress.",
+    ),
+  );
+});
 
 // Ancien stockage du jeton (avant le cookie HttpOnly) : on le supprime du navigateur
 try {
@@ -93,7 +102,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/blog/:slug" element={<SinglePost />} />
           <Route path="/success/:orderId" element={<Success />} />
           <Route path="/profile" element={<Profile />} />
-          {/* TEMP: wishlist testing, remove before commit */}
           <Route path="/wishlist" element={<Wishlist />} />
         </Routes>
         <Footer />

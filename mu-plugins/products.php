@@ -266,5 +266,8 @@ function headless_product_details_extra($product_id)
         'category_path' => $category_path,
         'gtin'          => $product && method_exists($product, 'get_global_unique_id') ? $product->get_global_unique_id() : '',
         'brand_logo'    => $brand_logo ?: null,
+        'subtitle'      => function_exists('get_field') ? (get_field('npa_product_subtitle', $product_id) ?: '') : '',
+        'fitment_note'  => function_exists('get_field') ? (get_field('npa_product_fitment_note', $product_id) ?: '') : '',
+        'custom_brand_logo' => function_exists('get_field') ? (get_field('npa_product_brand_logo', $product_id) ?: '') : '',
     ];
 }

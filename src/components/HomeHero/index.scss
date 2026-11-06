@@ -5,6 +5,8 @@
   display: flex;
   align-items: center;
   min-height: calc(100vh - 190px); // hauteur de l'écran moins le header
+  background-position: center;
+  background-size: cover;
 
   // Dégradé sombre pour rendre le texte lisible sur l'image de fond
   &::before {

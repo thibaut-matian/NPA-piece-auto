@@ -90,24 +90,23 @@ export default function CheckoutForm() {
     setLoading(true);
     setError(null);
 
-    const cardElement = elements.getElement(CardElement);
-    const { paymentMethod, error: stripeError } =
-      await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: {
-          name: `${finalBilling.firstName} ${finalBilling.lastName}`,
-          email,
-        },
-      });
-
-    if (stripeError) {
-      setError(stripeError.message);
-      setLoading(false);
-      return;
-    }
-
     try {
+      const cardElement = elements.getElement(CardElement);
+      const { paymentMethod, error: stripeError } =
+        await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement,
+          billing_details: {
+            name: `${finalBilling.firstName} ${finalBilling.lastName}`,
+            email,
+          },
+        });
+
+      if (stripeError) {
+        setError(stripeError.message);
+        return;
+      }
+
       const response = await apiFetch(
         `${import.meta.env.VITE_API_URL}/wp-json/wc/store/v1/checkout`,
         {
@@ -116,6 +115,7 @@ export default function CheckoutForm() {
           headers: {
             "Content-Type": "application/json",
             Nonce: cart?.nonce || "",
+            ...(cart?.cartToken && { "Cart-Token": cart.cartToken }),
           },
           body: JSON.stringify({
             payment_method: "stripe",
@@ -149,6 +149,11 @@ export default function CheckoutForm() {
         dispatch(fetchCurrentUserOrdersThunk());
         // La clé de la commande permet d'afficher son récapitulatif, même pour un invité
         navigate(`/success/${data.order_id}?key=${encodeURIComponent(data.order_key || "")}`);
+      } else {
+        const orderReference = data.order_id ? ` n°${data.order_id}` : "";
+        throw new Error(
+          `La commande${orderReference} a été enregistrée, mais sa confirmation de paiement est incomplète. Vérifiez son statut avant de réessayer.`,
+        );
       }
     } catch (err) {
       setError(err.message);

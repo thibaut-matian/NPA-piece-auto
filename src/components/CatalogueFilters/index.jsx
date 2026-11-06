@@ -7,7 +7,7 @@ import {
   toggleAttribute,
   resetSidebarFilters,
 } from "../../slices/filtersSlice";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { stripHtml } from "../../utils/stripHtml";
 
 function FilterGroup({ title, aside, children }) {
@@ -100,6 +100,7 @@ function BudgetFilter({ range, minPrice, maxPrice, onApply }) {
 }
 
 export default function CatalogueFilters() {
+  const { site } = useSiteContent();
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const filters = useSelector((state) => state.filters);

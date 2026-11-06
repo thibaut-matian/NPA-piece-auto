@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addProductToCart } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { formatPrice } from "../../utils/formatPrice";
 import { stripHtml } from "../../utils/stripHtml";
 import { getDiscountPercent } from "../../utils/productHelpers";
@@ -16,6 +16,7 @@ const sameValue = (a, b) =>
   String(a || "").toLowerCase() === String(b || "").toLowerCase();
 
 export default function ProductPurchase({ product }) {
+  const { site } = useSiteContent();
   const dispatch = useDispatch();
   const cartQuantity = useSelector((state) =>
     state.cart.items.reduce(
@@ -30,8 +31,8 @@ export default function ProductPurchase({ product }) {
 
   const name = stripHtml(product.name);
   const brand = stripHtml(product.brands?.[0]?.name);
-  const subtitle = stripHtml(product.short_description);
   const extra = product.npa || {};
+  const subtitle = stripHtml(extra.subtitle || product.short_description);
   const { prices } = product;
   const minorUnit = prices.currency_minor_unit;
   const discount = getDiscountPercent(prices);
@@ -123,8 +124,12 @@ export default function ProductPurchase({ product }) {
             <h1 className="product-purchase-title">{name}</h1>
           </div>
           <div className="product-purchase-header-aside">
-            {extra.brand_logo && (
-              <img src={extra.brand_logo} alt={brand} className="product-purchase-logo" />
+            {(extra.custom_brand_logo || extra.brand_logo) && (
+              <img
+                src={extra.custom_brand_logo || extra.brand_logo}
+                alt={brand}
+                className="product-purchase-logo"
+              />
             )}
             <WishlistButton product={product} />
           </div>

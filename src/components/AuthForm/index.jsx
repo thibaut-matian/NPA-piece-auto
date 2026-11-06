@@ -110,10 +110,13 @@ export default function AuthForm({ view = "login" }) {
     if (Object.keys(validation).length > 0) return;
 
     setSubmitted(true);
-    // TODO backend : "maintenir ma session"
     if (isLogin) {
       dispatch(
-        loginThunk({ username: form.email.trim(), password: form.password }),
+        loginThunk({
+          username: form.email.trim(),
+          password: form.password,
+          remember: form.remember,
+        }),
       );
     } else {
       dispatch(

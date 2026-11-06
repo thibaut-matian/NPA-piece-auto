@@ -1,5 +1,4 @@
-// Informations du magasin affichées dans le header, le footer et les pages.
-// Pour changer un numéro, une adresse ou un horaire, modifier ici uniquement.
+// Valeurs de secours utilisées tant que le contenu ACF de la page Accueil est vide.
 
 export const site = {
   name: "NAB Pièces Auto",

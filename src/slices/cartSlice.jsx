@@ -20,10 +20,18 @@ const { takeSnapshot, onFulfilled, onRejected } = createOptimisticHandlers({
     "needs_shipping",
     "extensions",
     "nonce",
+    "cartToken",
   ],
   onFulfilledPayload: (_state, payload) => {
     if (payload?.nonce) {
       localStorage.setItem("wc_cart_nonce", payload.nonce);
+    }
+    if (payload?.cartToken !== undefined) {
+      if (payload.cartToken) {
+        localStorage.setItem("wc_cart_token", payload.cartToken);
+      } else {
+        localStorage.removeItem("wc_cart_token");
+      }
     }
   },
 });
@@ -55,11 +63,19 @@ export const cartSlice = createSlice({
       typeof window !== "undefined"
         ? localStorage.getItem("wc_cart_nonce")
         : null,
+    cartToken:
+      typeof window !== "undefined"
+        ? localStorage.getItem("wc_cart_token")
+        : null,
     _snapshot: null,
     loading: false,
+    restoring: false,
     error: null,
   },
   reducers: {
+    setRestoringCart: (state, action) => {
+      state.restoring = action.payload;
+    },
     setVehicleCheck: (state, action) => {
       state.vehicleCheck = action.payload;
       try {
@@ -67,6 +83,10 @@ export const cartSlice = createSlice({
       } catch {
         // stockage indisponible : la valeur reste en mémoire
       }
+    },
+    resetCartToken: (state) => {
+      state.cartToken = null;
+      localStorage.removeItem("wc_cart_token");
     },
   },
   extraReducers: (builder) => {
@@ -167,4 +187,4 @@ export const cartSlice = createSlice({
 });
 
 export const cartActions = cartSlice.actions;
-export const { setVehicleCheck } = cartSlice.actions;
+export const { resetCartToken, setVehicleCheck, setRestoringCart } = cartSlice.actions;

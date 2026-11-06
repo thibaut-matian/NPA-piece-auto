@@ -13,7 +13,7 @@ import ReassuranceBand from "../../components/ReassuranceBand";
 import Loader from "../../components/Loader";
 
 export default function Cart() {
-  const { items, totals, needs_shipping, shipping_rates, loading } =
+  const { items, totals, needs_shipping, shipping_rates, loading, restoring } =
     useSelector((state) => state.cart);
 
   // Retrait sous 2h seulement si aucun article n'est sur commande
@@ -26,7 +26,7 @@ export default function Cart() {
         <div className="cart-page-inner">
           <CheckoutSteps current={1} />
 
-          {isEmpty && !totals && loading ? (
+          {restoring || (isEmpty && !totals && loading) ? (
             <Loader size="lg" />
           ) : isEmpty ? (
             <div className="cart-page-empty">

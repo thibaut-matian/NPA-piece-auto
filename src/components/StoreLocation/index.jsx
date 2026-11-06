@@ -1,8 +1,10 @@
 import "./index.scss";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import storeIcon from "../../assets/icons/store.svg";
 
 export default function StoreLocation() {
+  const { site } = useSiteContent();
+
   return (
     <section className="store-location">
       <div className="store-location-inner">

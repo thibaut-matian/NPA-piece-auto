@@ -123,7 +123,14 @@ export default function ProductTabs({ product }) {
         id={`panel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
       >
-        {activeTab === "vehicles" && <VehiclesPanel vehicles={vehicles} />}
+        {activeTab === "vehicles" && (
+          <>
+            {product.npa?.fitment_note && (
+              <p className="product-tabs-empty">{product.npa.fitment_note}</p>
+            )}
+            <VehiclesPanel vehicles={vehicles} />
+          </>
+        )}
         {activeTab === "specs" && <SpecsPanel product={product} />}
         {activeTab === "description" && (
           // Description rédigée dans l'admin WordPress

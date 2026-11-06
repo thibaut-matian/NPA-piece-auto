@@ -18,6 +18,16 @@ export const fetchSiteThunk = createAsyncThunk(
 
       let siteData = await response.json();
       let logoUrl = null;
+      const contentResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/wp-json/custom/v1/site-content`,
+      );
+      if (!contentResponse.ok) {
+        throw new Error("Impossible de récupérer les contenus ACF du site.");
+      }
+      const contentData = await contentResponse.json();
+      if (!contentData || typeof contentData.fields !== "object" || contentData.fields === null) {
+        throw new Error("La réponse des contenus ACF du site est invalide.");
+      }
 
       try {
         if (siteData.site_logo) {
@@ -41,10 +51,11 @@ export const fetchSiteThunk = createAsyncThunk(
 
       siteData.logoUrl = logoUrl ?? null;
       siteData.faviconUrl = siteData.site_icon_url ?? null;
+      siteData.contentFields = contentData.fields;
 
       thunkAPI.dispatch(setSite(siteData));
 
-      return formattedData;
+      return siteData;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

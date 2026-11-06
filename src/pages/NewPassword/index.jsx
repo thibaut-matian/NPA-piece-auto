@@ -4,10 +4,11 @@ import "./index.scss";
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 
 // Même présentation que la modale de connexion : encadré blanc centré, bouton jaune
 export default function NewPassword() {
+  const { site } = useSiteContent();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const key = searchParams.get("key");

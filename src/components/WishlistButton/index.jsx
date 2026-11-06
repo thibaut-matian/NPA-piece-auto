@@ -12,7 +12,7 @@ import "./index.scss";
 import active from "./favorite-active.svg";
 import inactive from "./favorite-inactive.svg";
 
-export default function WishlistButton({ product }) {
+export default function WishlistButton({ product, className = "" }) {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.isAuthenticated);
   const isWishlisted = useSelector((state) =>
@@ -53,14 +53,15 @@ export default function WishlistButton({ product }) {
   };
 
   return (
-    <img
+    <button
       type="button"
-      className={`wishlist-button ${isWishlisted ? "active" : ""}`}
+      className={`wishlist-button ${className} ${isWishlisted ? "active" : ""}`.trim()}
       aria-pressed={isWishlisted}
       aria-label={isWishlisted ? "Retirer des favoris" : "Ajouter aux favoris"}
       title={isWishlisted ? "Retirer des favoris" : "Ajouter aux favoris"}
       onClick={toggleWishlist}
-      src={isWishlisted ? active : inactive}
-    />
+    >
+      <img src={isWishlisted ? active : inactive} alt="" aria-hidden="true" />
+    </button>
   );
 }

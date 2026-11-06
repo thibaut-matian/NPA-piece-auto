@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setFilters } from "../../slices/filtersSlice";
 import { fetchVehicleChildrenThunk } from "../../thunkActionsCreator/vehiclesThunks";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 
 // Liste déroulante remplie uniquement avec les véhicules créés dans WordPress
 function VehicleSelect({ label, placeholder, options, value, onChange, disabled }) {
@@ -27,9 +27,10 @@ function VehicleSelect({ label, placeholder, options, value, onChange, disabled 
 }
 
 export default function VehicleSearch() {
+  const { site } = useSiteContent();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const byParent = useSelector((state) => state.vehicles.byParent);
+  const { byParent, loading, error } = useSelector((state) => state.vehicles);
   const currentVehicle = useSelector((state) => state.filters.vehicle);
 
   // On repart du véhicule déjà choisi (bouton "Changer" du catalogue)
@@ -51,6 +52,19 @@ export default function VehicleSearch() {
   const brands = byParent[0];
   const models = brandId ? byParent[brandId] : [];
   const engines = modelId ? byParent[modelId] : [];
+  const vehicleLoading = loading[0] || (brandId && loading[brandId]) || (modelId && loading[modelId]);
+  let vehicleMessage = "";
+  if (vehicleLoading) {
+    vehicleMessage = "Chargement des véhicules…";
+  } else if (error) {
+    vehicleMessage = `${error} Vous pouvez rechercher une pièce par référence ou mot-clé ci-dessous.`;
+  } else if (brands?.length === 0) {
+    vehicleMessage = "La recherche par véhicule n'est pas encore disponible. Recherchez une pièce par référence ou mot-clé ci-dessous, ou contactez le comptoir.";
+  } else if (brandId && models?.length === 0) {
+    vehicleMessage = "Aucun modèle renseigné pour cette marque. Vous pouvez rechercher avec la marque seule ou saisir une référence ou un mot-clé.";
+  } else if (modelId && engines?.length === 0) {
+    vehicleMessage = "Aucune motorisation renseignée pour ce modèle. Vous pouvez rechercher avec le modèle seul ou saisir une référence ou un mot-clé.";
+  }
   const findName = (list, id) => list?.find((item) => String(item.id) === String(id))?.name || "";
 
   const changeBrand = (id) => {
@@ -114,7 +128,7 @@ export default function VehicleSearch() {
         <div className="vehicle-search-fields">
           <VehicleSelect
             label="Marque"
-            placeholder={brands ? "1. Marque" : "Chargement…"}
+            placeholder={loading[0] ? "Chargement…" : "1. Marque"}
             options={brands}
             value={brandId}
             onChange={changeBrand}
@@ -122,7 +136,7 @@ export default function VehicleSearch() {
           />
           <VehicleSelect
             label="Modèle"
-            placeholder="2. Modèle"
+            placeholder={brandId && loading[brandId] ? "Chargement…" : "2. Modèle"}
             options={models}
             value={modelId}
             onChange={changeModel}
@@ -130,13 +144,21 @@ export default function VehicleSearch() {
           />
           <VehicleSelect
             label="Motorisation"
-            placeholder="3. Motorisation"
+            placeholder={modelId && loading[modelId] ? "Chargement…" : "3. Motorisation"}
             options={engines}
             value={engineId}
             onChange={setEngineId}
             disabled={!modelId || !engines?.length}
           />
         </div>
+        {vehicleMessage && (
+          <p
+            className="vehicle-search-message"
+            role={error && !vehicleLoading ? "alert" : "status"}
+          >
+            {vehicleMessage}
+          </p>
+        )}
       </fieldset>
 
       <div className="vehicle-search-step">

@@ -84,6 +84,13 @@
   gap: 8px;
 }
 
+.vehicle-search-message {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
 .vehicle-search-input {
   min-width: 0;
   margin: 0;

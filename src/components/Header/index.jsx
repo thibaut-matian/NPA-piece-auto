@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Autocomplete from "../Autocomplete";
 import { openModal } from "../../slices/modalSlice";
 import useOpenCategory from "../../hooks/useOpenCategory";
-import { site } from "../../config/site";
+import useSiteContent from "../../hooks/useSiteContent";
 import { headerCategories } from "./categories";
 import logo from "../../assets/images/logo.png";
 import { formatPrice } from "../../utils/formatPrice";
@@ -23,10 +23,11 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const dispatch = useDispatch();
   const openCategory = useOpenCategory();
+  const { site } = useSiteContent();
   const token = useSelector((state) => state.user.isAuthenticated);
   const cartItems = useSelector((state) => state.cart.items);
   const cartTotals = useSelector((state) => state.cart.totals);
-  // const wishlistItems = useSelector((state) => state.wishlist.items);
+  const wishlistItems = useSelector((state) => state.wishlist.items);
 
   const cartCount = cartItems.reduce(
     (total, item) => total + (Number(item.quantity) || 0),
@@ -59,7 +60,7 @@ export default function Header() {
 
       <div className="header-main">
         <Link to="/" className="header-brand" aria-label="Accueil">
-          <img src={logo} alt={site.name} className="header-logo" />
+          <img src={site.logoUrl || logo} alt={site.name} className="header-logo" />
           <span className="header-brand-text">
             <span className="header-brand-name">{site.name}</span>
             <span className="header-brand-tagline">{site.tagline}</span>
@@ -114,7 +115,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* <Link
+        <Link
           to="/wishlist"
           className="header-wishlist"
           aria-label={`Favoris (${wishlistItems.length})`}
@@ -127,7 +128,7 @@ export default function Header() {
               {wishlistItems.length > 9 ? "9+" : wishlistItems.length}
             </span>
           )}
-        </Link> */}
+        </Link>
 
         <Link
           to="/panier"

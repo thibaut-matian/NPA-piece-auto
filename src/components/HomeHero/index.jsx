@@ -1,27 +1,24 @@
 import "./index.scss";
 import VehicleSearch from "../VehicleSearch";
-
-const features = ["Dispo en 2h", "100% neuves OEM", "Conseil d'atelier"];
+import useSiteContent from "../../hooks/useSiteContent";
 
 export default function HomeHero() {
+  const { home } = useSiteContent();
+
   return (
-    <section className="home-hero">
+    <section
+      className="home-hero"
+      style={home.heroImage ? { backgroundImage: `url("${home.heroImage}")` } : undefined}
+    >
       <div className="home-hero-inner">
         <div className="home-hero-content">
           <span className="home-hero-badge">
-            Comptoir stock permanent • 13010 Marseille
+            {home.heroBadge}
           </span>
-          <h1 className="home-hero-title">
-            Vos pièces auto au meilleur prix immédiatement
-          </h1>
-          <p className="home-hero-text">
-            Plus de 150 000 références neuves certifiées constructeur en stock
-            ou disponibles sous 2h à notre comptoir de La Capelette. Commandez
-            en ligne, retirez sur place ou faites-vous livrer sur Marseille
-            &amp; alentours.
-          </p>
+          <h1 className="home-hero-title">{home.heroTitle}</h1>
+          <p className="home-hero-text">{home.heroDescription}</p>
           <ul className="home-hero-features">
-            {features.map((feature) => (
+            {home.heroFeatures.map((feature) => (
               <li key={feature} className="home-hero-feature">
                 {feature}
               </li>
