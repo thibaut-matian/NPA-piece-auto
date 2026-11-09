@@ -35,9 +35,11 @@ add_action('init', function () {
 add_action('init', function () {
     $pages = [
         'contact'         => 'Contact',
+        'a-propos'        => 'À propos',
         'mentions-legales' => 'Mentions légales',
         'cgv'             => 'Conditions générales de vente',
         'cgu'             => 'Conditions générales d’utilisation',
+        'politique-de-confidentialite' => 'Politique de confidentialité',
         'faq'             => 'Questions fréquentes',
     ];
 

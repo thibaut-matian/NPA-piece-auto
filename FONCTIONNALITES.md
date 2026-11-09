@@ -59,7 +59,6 @@ En local, le navigateur appelle `/woo-api/...` et Vite transmet à WordPress (`v
 ### Panier (`/panier`)
 - Étapes de commande (Panier → Coordonnées → Paiement).
 - Articles : photo, marque, référence, « En stock Capelette » ou « Sur commande », prix de la ligne et prix unitaire TTC, quantités (dans les limites WooCommerce), suppression.
-- **Vérification de compatibilité** : le client peut saisir son immatriculation (AB-123-CD) ou son numéro VIN (contrôle du format).
 - Code promo (codes créés dans WooCommerce → Marketing → Codes promo).
 - **Mode d'obtention** : retrait comptoir (gratuit, présélectionné), navette express 13 / PACA (offerte dès le seuil réglé dans WooCommerce), Colissimo. Titres, prix et seuil viennent de WooCommerce ; les textes descriptifs sont dans `src/config/site.js`.
 - **Récapitulatif** : total HT, TVA, port, total TTC, **tous calculés par WooCommerce** (le front ne calcule aucun montant).
@@ -67,8 +66,9 @@ En local, le navigateur appelle `/woo-api/...` et Vite transmet à WordPress (`v
 
 ### Commande (`/commande`)
 - Adresses de livraison et de facturation (France uniquement, comme les zones de livraison), e-mail, paiement par carte via **Stripe**.
+- Demande facultative de vérification manuelle de compatibilité par immatriculation ou VIN ; l'information est jointe à la commande pour l'équipe.
 - Proposition de se connecter ou de commander en invité.
-- ⚠️ Pas encore fait : le choix « payer au comptoir » sur cette page (WooCommerce le propose déjà quand le retrait est choisi) et l'envoi de l'immatriculation / VIN saisi dans le panier avec la commande.
+- ⚠️ Pas encore fait : le choix « payer au comptoir » sur cette page (WooCommerce le propose déjà quand le retrait est choisi).
 
 ### Confirmation de commande (`/success/:id?key=...`)
 - Bandeau « commande confirmée », statut, date.
@@ -88,8 +88,12 @@ En local, le navigateur appelle `/woo-api/...` et Vite transmet à WordPress (`v
 - Formulaire : nom, e-mail, téléphone, **sujet** (pièce, devis / VIN, compte pro, suivi de commande, autre), immatriculation ou VIN, message, consentement RGPD. Le lien `/contact?sujet=devis` présélectionne un sujet.
 - Coordonnées du comptoir, horaires, appel, WhatsApp, itinéraire.
 
+### À propos (`/a-propos`)
+- Contenu de présentation modifiable par le client dans la page WordPress `a-propos` ; la page est créée vide en brouillon si elle n'existe pas.
+
 ### Pages de contenu
-- Mentions légales, CGV, CGU : contenu des pages WordPress, mis en forme aux couleurs du site.
+- Mentions légales, CGV, CGU et politique de confidentialité : contenu des pages WordPress, mis en forme aux couleurs du site.
+- Informations cookies : seuls les stockages techniques liés au compte, au panier et au paiement sont actuellement utilisés. Le message peut être fermé puis rouvert depuis le pied de page ; aucun traceur publicitaire ou outil de mesure d'audience n'est intégré.
 - Blog (`/blog`, `/blog/:slug`) : articles WordPress.
 
 ---
@@ -159,7 +163,7 @@ Un mode de livraison qui demande un choix supplémentaire au client (point relai
 | `customer.php`, `user.php` | profil et adresses du client, suppression du compte |
 | `orders.php`, `order-confirmation.php` | commandes du client, récapitulatif de la page de confirmation |
 | `cart.php` | panier : frais estimés pour le 13010, port saisi TTC, retrait présélectionné, marque des articles, seuils de livraison gratuite |
-| `vehicle-check.php` | immatriculation / VIN du panier enregistré sur la commande, affiché dans l'admin et les e-mails |
+| `vehicle-check.php` | immatriculation / VIN fourni au checkout, enregistré sur la commande et affiché dans l'admin et les e-mails |
 | `products.php`, `vehicules.php` | produits filtrés par véhicule, taxonomie « Véhicules » |
 | `reviews.php` | avis : éligibilité (achat vérifié) et dépôt en modération |
 | `wishlist.php` | favoris du client |

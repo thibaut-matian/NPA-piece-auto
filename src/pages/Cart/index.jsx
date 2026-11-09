@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import CheckoutSteps from "../../components/CheckoutSteps";
 import CartStoreBanner from "../../components/CartStoreBanner";
 import CartItems from "../../components/CartItems";
-import CartCompatibility from "../../components/CartCompatibility";
 import Coupon from "../../components/Coupon";
 import CartShipping from "../../components/CartShipping";
 import CartSummary from "../../components/CartSummary";
@@ -43,7 +42,6 @@ export default function Cart() {
               <div className="cart-page-main">
                 {/* <CartStoreBanner allInStock={allInStock} /> */}
                 <CartItems items={items} />
-                <CartCompatibility />
                 {/* <Coupon /> */}
                 <Link to="/" className="cart-page-continue">
                   ← Retour à l'accueil

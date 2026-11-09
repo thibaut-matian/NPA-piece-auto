@@ -28,10 +28,12 @@ import Wishlist from "./pages/Wishlist";
 import BlogPage from "./pages/Blog";
 import SinglePost from "./pages/SinglePost";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
 import LegalMentions from "./pages/LegalMentions";
 import CGU from "./pages/CGU";
 import CGV from "./pages/CGV";
 import FAQ from "./pages/FAQ";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Error404 from "./pages/Error404";
 
 import Seo from "./components/Seo";
@@ -93,10 +95,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/cgu" element={<CGU />} />
           <Route path="/cgv" element={<CGV />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route
+            path="/politique-de-confidentialite"
+            element={<PrivacyPolicy />}
+          />
           <Route path="/panier" element={<Cart />} />
           <Route path="/commande" element={<Checkout />} />
           <Route path="*" element={<Error404 />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/a-propos" element={<About />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<SinglePost />} />

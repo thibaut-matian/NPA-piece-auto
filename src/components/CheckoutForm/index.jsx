@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../slices/toastSlice";
+import { setVehicleCheck } from "../../slices/cartSlice";
 import { emptyCartThunk } from "../../thunkActionsCreator/cartThunks";
 import {
   fetchCurrentCustomerThunk,
@@ -12,7 +13,9 @@ import {
 } from "../../thunkActionsCreator/userThunks";
 import { openModal } from "../../slices/modalSlice";
 import { apiFetch } from "../../utils/apiFetch";
+import { normalizeVehicle } from "../../utils/vehicleCheck";
 import AddressFields from "../AddressFields";
+import CheckoutVehicleCheck from "../CheckoutVehicleCheck";
 import {
   addressLines,
   hasPostalAddress,
@@ -49,6 +52,8 @@ export default function CheckoutForm() {
   const [shippingAddress, setShippingAddress] = useState(() => fromSaved(savedShipping));
   const [billingAddress, setBillingAddress] = useState(() => fromSaved(savedBilling));
   const [email, setEmail] = useState(user?.profile?.email || "");
+  const [vehicleCheck, setVehicleCheckValue] = useState(cart.vehicleCheck || "");
+  const [vehicleCheckError, setVehicleCheckError] = useState("");
 
   // Adresse déjà connue (profil ou SIRET) : on demande seulement de la confirmer
   const [editingShipping, setEditingShipping] = useState(!hasPostalAddress(savedShipping));
@@ -83,10 +88,31 @@ export default function CheckoutForm() {
         handleGuestCheckout,
       );
     };
-  }, [stripe, elements, loading, finalBilling, shippingAddress, email]);
+  }, [
+    stripe,
+    elements,
+    loading,
+    finalBilling,
+    shippingAddress,
+    email,
+    vehicleCheck,
+  ]);
 
   const processCheckout = async () => {
     if (!stripe || !elements || loading) return;
+    const normalizedVehicleCheck = vehicleCheck.trim()
+      ? normalizeVehicle(vehicleCheck)
+      : "";
+    if (vehicleCheck.trim() && !normalizedVehicleCheck) {
+      setVehicleCheckError(
+        "Format attendu : immatriculation AB-123-CD ou VIN à 17 caractères.",
+      );
+      document.getElementById("checkout-vehicle-check")?.focus();
+      return;
+    }
+
+    setVehicleCheckError("");
+    dispatch(setVehicleCheck(normalizedVehicleCheck));
     setLoading(true);
     setError(null);
 
@@ -128,10 +154,10 @@ export default function CheckoutForm() {
             ],
             billing_address: { ...toStoreAddress(finalBilling), email },
             shipping_address: toStoreAddress(shippingAddress),
-            // Immatriculation / VIN saisi dans le panier, enregistré sur la commande
+            // Immatriculation / VIN facultatif pour la vérification manuelle
             // pour le technicien (mu-plugins/vehicle-check.php)
             extensions: {
-              npa: { vehicle_check: cart.vehicleCheck || "" },
+              npa: { vehicle_check: normalizedVehicleCheck },
             },
           }),
         },
@@ -144,6 +170,8 @@ export default function CheckoutForm() {
       if (data.payment_result?.redirect_url) {
         dispatch(showToast(`Commande n°${data.order_id} confirmée`));
         dispatch(emptyCartThunk());
+        dispatch(setVehicleCheck(""));
+        setVehicleCheckValue("");
         dispatch(fetchCurrentUserThunk());
         dispatch(fetchCurrentCustomerThunk());
         dispatch(fetchCurrentUserOrdersThunk());
@@ -307,6 +335,15 @@ export default function CheckoutForm() {
             </div>
           </div>
         )}
+
+        <CheckoutVehicleCheck
+          value={vehicleCheck}
+          onChange={(value) => {
+            setVehicleCheckValue(value);
+            if (vehicleCheckError) setVehicleCheckError("");
+          }}
+          error={vehicleCheckError}
+        />
 
         <div className="checkout-form__section checkout-form__payment">
           <h3>Paiement</h3>
