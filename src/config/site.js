@@ -41,9 +41,6 @@ export const site = {
   ],
   topbarHighlight: "Pièces Neuves Garanties Constructeur",
 
-  // Taux de TVA utilisé pour afficher le prix HT sur la fiche produit
-  vatRate: 0.2,
-
   // Textes de la fiche produit
   product: {
     pickupTitle: "En stock immédiat comptoir Capelette",

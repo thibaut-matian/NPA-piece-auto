@@ -69,7 +69,7 @@ Si l'hébergeur bloque l'en-tête `Authorization` (rare), ajouter dans le `.htac
 
 ### 2.4 Copier les mu-plugins
 
-Copier **tout** le dossier `mu-plugins/` du projet dans `wp-content/mu-plugins/` du serveur (FTP ou gestionnaire de fichiers). En local, ce dossier est un lien vers le projet ; en production c'est une **copie** : à refaire à chaque mise à jour des mu-plugins.
+Copier **tout** le dossier `mu-plugins/` du projet dans `wp-content/mu-plugins/` du serveur (FTP ou gestionnaire de fichiers). En local, vérifier si ce dossier est un lien vers le projet ou une **copie** : dans le second cas, reporter également les modifications dans WordPress local. En production, la copie est à refaire à chaque mise à jour des mu-plugins.
 
 ### 2.5 Lien « mot de passe oublié »
 
@@ -98,6 +98,68 @@ Le script `scripts/setup-woocommerce.php` règle en une commande : adresse du co
 | WooCommerce → Réglages → Paiements | « Paiement à la livraison » : titre « Paiement au comptoir lors du retrait », activé seulement pour « Retrait comptoir » |
 
 Les frais de port se saisissent **TTC** (le mu-plugin `cart.php` en déduit la TVA).
+
+Le front React utilise le retrait classique WooCommerce (`local_pickup`) dans les zones
+d'expédition, et non le retrait réservé au checkout par blocs. WooCommerce peut masquer
+ce mode dans l'admin si la page de commande WordPress utilise les blocs et qu'aucun
+retrait classique n'est encore actif. Ne pas relancer le script de configuration sur une
+boutique déjà configurée pour contourner ce masquage.
+
+Pour les comptes sans pays renseigné, `cart.php` utilise le pays de la boutique pour
+estimer les tarifs et la TVA, comme pour les invités. Ce calcul ne sauvegarde aucune
+adresse sur le compte et respecte les pays déjà renseignés. Le code postal du comptoir
+n'est utilisé par défaut que pour une destination dans le pays de la boutique.
+
+Vérification locale (WordPress avec retrait classique gratuit actif, produit simple
+physique publié et taxable, prix saisi TTC) :
+
+```powershell
+php scripts/test-cart-shipping.php C:\wamp64\www\wooc_npa 12
+```
+
+Remplacer `12` par l'identifiant du produit de test. Ce test ne crée ni compte ni commande
+et ne modifie pas les adresses clients. Vérifier également dans React le panier invité,
+le panier connecté sans adresse, le passage retrait/livraison et l'affichage du tiret
+dans le nom du retrait.
+
+### Retrait : notification « Prête à retirer »
+
+Le mu-plugin `pickup.php` et son fichier `includes/class-npa-pickup-email.php` ajoutent
+le statut **Prête à retirer** aux commandes WooCommerce (compatible avec le stockage HPOS).
+Copier également le sous-dossier `includes` lors du déploiement.
+
+1. Vérifier le fuseau **Europe/Paris** dans Réglages → Général, puis l'adresse
+   de retrait et les horaires dans WooCommerce → Réglages → E-mails →
+   **Commande prête à retirer**. Ces champs sont préremplis pour le comptoir
+   du 158 Avenue de la Capelette, 13010 Marseille et doivent rester cohérents
+   avec les coordonnées affichées sur le front.
+2. Préparer une commande avec retrait classique `local_pickup`, au statut
+   **En préparation** ou **En attente**, puis la passer manuellement à **Prête à retirer**.
+   Une commande en livraison, annulée, remboursée ou pas encore préparée est refusée,
+   avec une note de commande et une entrée dans le journal `npa-pickup`.
+3. Le changement déclenche l'e-mail client : numéro, adresse, horaires et date limite,
+   **sept jours calendaires après la première mise à disposition**, à la même heure
+   dans le fuseau du magasin. La date apparaît aussi dans l'admin et le compte React.
+   Ce statut ne confirme pas à lui seul un paiement, notamment au comptoir.
+4. Au retrait effectif, l'équipe passe la commande à **Terminée**. Aucun SMS, rappel,
+   remboursement ou changement de statut automatique n'est déclenché à l'échéance.
+
+Une sauvegarde ordinaire ne renvoie pas l'e-mail. L'action de commande
+**Renvoyer l'e-mail « Prête à retirer »** permet une nouvelle tentative manuelle.
+Un renvoi, ou un retour au statut prêt, conserve la date limite initiale.
+Les échecs d'envoi sont notés sur la commande et dans le journal WooCommerce ;
+un envoi accepté ne garantit pas la remise dans la boîte du client.
+Une notification désactivée laisse également une note sur la commande.
+
+Test local uniquement (commandes temporaires supprimées à la fin, tous les e-mails
+interceptés sans livraison et aucun paiement ni appel transporteur) :
+
+```powershell
+php -d memory_limit=256M scripts/test-pickup.php C:\wamp64\www\wooc_npa
+```
+
+Le site hébergé doit encore être testé pour la remise réelle des e-mails, avec
+des destinataires de test, avant utilisation par le client.
 
 ### 2.7 Contenus
 
@@ -146,6 +208,16 @@ Remplacer l'adresse selon le cas de la section 1 (cas A : `https://nabpieces.fr/
 
 > Pourquoi passer `VITE_API_URL` dans la commande ? En local, `.env.production` sert **aussi** de cible au proxy de Vite (`vite.config.js`) et pointe vers votre WordPress local. La variable passée dans la commande est prioritaire et évite de modifier ce fichier.
 > Sous Windows (PowerShell) : `$env:VITE_API_URL="https://api.nabpieces.fr"; npm run build`
+
+Le build refuse une API HTTP, sauf autorisation explicite réservée aux adresses
+locales pour les tests. Voir [README.md](README.md) pour cette exception ; ne
+jamais déployer le résultat correspondant. Le proxy `/woo-api` reste autorisé,
+mais doit lui-même joindre WordPress en HTTPS sur l'hébergement. Ce contrôle ne
+vérifie pas que le front est servi en HTTPS ni la validité des certificats :
+vérifier les deux avant toute connexion ou donnée réelle. Ne pas redéployer
+l'ancienne archive `npa-front-test.zip`, construite avec une API en HTTP.
+Un build refusé peut laisser un ancien dossier `dist/` intact : ne le déployez
+pas. Relancez un build réussi avec la bonne adresse et vérifiez son contenu.
 
 Le résultat est dans `dist/` : c'est ce dossier qu'on envoie sur l'hébergement du front.
 
@@ -234,6 +306,32 @@ Après la mise en ligne, dans le navigateur (outils de développement → Applic
 
 ## 6. E-mails (WP Mail SMTP)
 
+### Tests locaux sans envoi reel (Mailpit)
+
+Le mu-plugin `local-mail.php` redirige les e-mails WordPress vers
+`127.0.0.1:1025` uniquement lorsque le domaine de `home_url()` est `localhost`,
+`127.0.0.1` ou `::1`. Sur l'hebergement, il ne change pas la configuration d'envoi.
+Si Mailpit est arrete, l'envoi local echoue : aucun repli vers un envoi reel.
+
+Installer [Mailpit](https://github.com/axllent/mailpit/releases) pour Windows,
+puis le lancer dans PowerShell (adapter le chemin si necessaire) :
+
+```powershell
+& "$env:LOCALAPPDATA\NPA\Mailpit\mailpit.exe" --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025 --database "$env:LOCALAPPDATA\NPA\Mailpit\messages.db"
+```
+
+Garder le processus ouvert pendant les tests. La boite de capture est accessible
+sur `http://127.0.0.1:8025`. Les interfaces sont limitees a cet ordinateur ;
+ne pas configurer de relais ou de transfert SMTP. Tous les e-mails locaux,
+quel que soit le destinataire, sont captures ici et ne sont pas livres aux
+boites reelles. Utiliser uniquement des donnees fictives pour les tests.
+
+Le bouton WooCommerce « Send a test email » permet de verifier la capture.
+Pour l'e-mail de retrait, l'apercu generique ne contient pas une vraie commande
+prete : il ne valide donc pas a lui seul le contenu avec son echeance.
+
+### Envoi reel sur l'hebergement
+
 Sans configuration, les e-mails partent souvent en spam, voire pas du tout.
 
 1. Créer une boîte e-mail sur le domaine du client chez l'hébergeur (ex. `contact@nabpieces.fr`).
@@ -243,6 +341,35 @@ Sans configuration, les e-mails partent souvent en spam, voire pas du tout.
 5. **WooCommerce → Réglages → E-mails** : nom et adresse d'expéditeur, logo, couleurs ; destinataire de « Nouvelle commande » = adresse du comptoir.
 
 E-mails envoyés par le site : bienvenue à l'inscription (client), nouvelle commande (comptoir), commande en cours / terminée (client), mot de passe oublié (client), message du formulaire de contact (comptoir), avis à modérer (comptoir).
+
+### Affichage fiscal du catalogue et du panier
+
+Les prix principaux restent TTC pour tous, sans tarif professionnel distinct.
+Le complement HT est affiche uniquement aux comptes connectes dont
+`accountType` vaut `pro`. La fiche utilise `npa.price_excluding_tax`, calcule
+par WooCommerce dans la devise et l'unite monetaire de la reponse produit.
+Pour un produit variable, ce montant correspond a la variante la moins chere
+du prix « Des » affiche. Le panier utilise les montants HT et TVA de la Store API,
+sans taux fixe dans React ; les remises restent presentees separement.
+
+Deployer `mu-plugins/products.php` et reconstruire le front ensemble.
+Ces changements ne modifient aucun taux fiscal, ne mettent en place aucun
+regime de TVA sur marge et ne constituent pas une validation comptable.
+
+Verification locale du calcul HT (produits temporaires supprimes en fin de test) :
+
+```powershell
+php -d memory_limit=256M scripts/test-product-tax.php C:\wamp64\www\wooc_npa
+```
+
+Avec Vite lance, executer dans la console du navigateur sur le front local :
+
+```javascript
+(await import('/scripts/test-tax-display.mjs')).runTaxDisplayTests()
+```
+
+Ce test rend les composants avec des donnees fictives invite/particulier/pro,
+sans connexion, commande ou modification du panier reel.
 
 ---
 
@@ -257,6 +384,7 @@ E-mails envoyés par le site : bienvenue à l'inscription (client), nouvelle com
 - [ ] Commande payée par carte (petite somme réelle, puis remboursement depuis Stripe) → page de confirmation, e-mail client, e-mail comptoir.
 - [ ] Mot de passe oublié → e-mail reçu, lien qui mène au site (voir 2.5).
 - [ ] Formulaire de contact → message dans l'admin (« Messages contact ») et e-mail reçu.
+- [ ] Un message non lu ajoute une pastille au menu « Messages contact » ; son ouverture par un vendeur autorisé le marque lu pour toute l'équipe. Les anciens messages sans état de lecture sont initialement considérés non lus. Le compteur inclut les messages privés et ceux restaurés de la corbeille en brouillon ; il se met à jour lors du chargement d'une page d'administration, pas en temps réel.
 - [ ] Avis client sur un produit acheté → en attente, puis visible après validation (Produits → Avis).
 - [ ] Mentions légales, CGV, CGU, Contact affichent leur contenu.
 

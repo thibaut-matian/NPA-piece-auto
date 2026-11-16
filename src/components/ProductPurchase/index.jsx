@@ -18,6 +18,9 @@ const sameValue = (a, b) =>
 export default function ProductPurchase({ product }) {
   const { site } = useSiteContent();
   const dispatch = useDispatch();
+  const isPro = useSelector((state) =>
+    state.user.isAuthenticated && state.user.customer?.accountType === "pro",
+  );
   const cartQuantity = useSelector((state) =>
     state.cart.items.reduce(
       (total, item) => total + (item.id === product.id ? item.quantity : 0),
@@ -37,7 +40,7 @@ export default function ProductPurchase({ product }) {
   const minorUnit = prices.currency_minor_unit;
   const discount = getDiscountPercent(prices);
   const price = Number(product.has_options ? prices.price_range?.min_amount || prices.price : prices.price);
-  const priceExclTax = Math.round(price / (1 + site.vatRate));
+  const priceExclTax = extra.price_excluding_tax;
   const rating = Number(product.average_rating) || 0;
   const reviewCount = product.review_count || 0;
 
@@ -174,10 +177,14 @@ export default function ProductPurchase({ product }) {
               </span>
             )}
           </div>
-          <div className="product-purchase-vat">
-            <span>{formatPrice(priceExclTax, minorUnit)} HT</span>
-            <span className="product-purchase-vat-pro">TVA récupérable Pro</span>
-          </div>
+          {isPro && priceExclTax != null && (
+            <div className="product-purchase-vat">
+              <span>
+                {product.has_options && prices.price_range && "Dès "}
+                {formatPrice(priceExclTax, minorUnit)} HT
+              </span>
+            </div>
+          )}
         </div>
 
         {product.is_on_backorder ? (

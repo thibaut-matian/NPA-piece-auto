@@ -199,6 +199,29 @@ function headless_get_single_product_with_variation_stock($request)
     return rest_ensure_response($product_data);
 }
 
+function headless_product_price_excluding_tax(WC_Product $product)
+{
+    if ($product->is_type('variable')) {
+        $prices = $product->get_variation_prices(true);
+        $variation_id = array_key_first($prices['price']);
+        $product = $variation_id ? wc_get_product($variation_id) : null;
+    } elseif ($product->is_type('grouped')) {
+        $children = array_filter(array_map('wc_get_product', $product->get_children()), function ($child) {
+            return $child && $child->is_visible() && $child->get_price() !== '';
+        });
+        usort($children, function ($left, $right) {
+            return wc_get_price_to_display($left) <=> wc_get_price_to_display($right);
+        });
+        $product = $children[0] ?? null;
+    }
+
+    if (!$product || $product->get_price() === '') {
+        return null;
+    }
+
+    return (string) round(wc_get_price_excluding_tax($product) * (10 ** wc_get_price_decimals()));
+}
+
 /**
  * Informations de la fiche produit absentes de l'API WooCommerce :
  * véhicules compatibles regroupés, chemin de catégorie, EAN et logo de la marque.
@@ -262,6 +285,7 @@ function headless_product_details_extra($product_id)
     }
 
     return [
+        'price_excluding_tax' => $product ? headless_product_price_excluding_tax($product) : null,
         'vehicles'      => $vehicles,
         'category_path' => $category_path,
         'gtin'          => $product && method_exists($product, 'get_global_unique_id') ? $product->get_global_unique_id() : '',

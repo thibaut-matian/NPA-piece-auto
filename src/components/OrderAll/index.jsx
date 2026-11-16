@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import "./index.scss";
 import { openModal } from "../../slices/modalSlice";
 import StatusBadge from "../StatusBadge";
+import PickupDeadline from "../PickupDeadline";
 
 // Le endpoint custom/v1/orders renvoie le total en euros ("29.80")
 const formatTotal = (total) => `${Number(total || 0).toFixed(2).replace(".", ",")} €`;
@@ -38,6 +39,7 @@ export function OrderAll() {
                     {" · "}
                     {count} article{count > 1 ? "s" : ""}
                   </span>
+                  <PickupDeadline pickup={order.pickup} />
                 </div>
                 <StatusBadge status={order.status} />
                 <span className="orders-history__total">{formatTotal(order.total)}</span>

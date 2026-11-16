@@ -39,6 +39,81 @@ add_action('init', function () {
     ]);
 });
 
+function npa_contact_unread_count()
+{
+    global $wpdb;
+
+    $count = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->posts} p
+         WHERE p.post_type = %s AND p.post_status IN (%s, %s)
+         AND NOT EXISTS (
+             SELECT 1 FROM {$wpdb->postmeta} m
+             WHERE m.post_id = p.ID AND m.meta_key = %s
+         )",
+        'npa_contact',
+        'private',
+        'draft',
+        '_npa_contact_read'
+    ));
+
+    if ($count === null) {
+        error_log('NPA contact : impossible de compter les messages non lus : ' . $wpdb->last_error);
+        return null;
+    }
+
+    return (int) $count;
+}
+
+function npa_contact_update_menu_badge()
+{
+    global $menu;
+
+    $type = get_post_type_object('npa_contact');
+    if (!$type || !current_user_can($type->cap->edit_posts) || !current_user_can($type->cap->read_private_posts)) {
+        return;
+    }
+
+    $count = npa_contact_unread_count();
+    if ($count === null) {
+        return;
+    }
+
+    foreach ($menu as &$item) {
+        if ($item[2] !== 'edit.php?post_type=npa_contact') {
+            continue;
+        }
+        $item[0] = esc_html($type->labels->name);
+        if ($count > 0) {
+            $label = sprintf(_n('%s message non lu', '%s messages non lus', $count), number_format_i18n($count));
+            $item[0] .= ' <span class="awaiting-mod count-' . esc_attr($count) . '"><span aria-hidden="true">'
+                . esc_html(number_format_i18n($count)) . '</span><span class="screen-reader-text">'
+                . esc_html($label) . '</span></span>';
+        }
+        break;
+    }
+    unset($item);
+}
+add_action('admin_menu', 'npa_contact_update_menu_badge', 999);
+
+function npa_contact_mark_opened_read()
+{
+    $action = isset($_GET['action']) ? sanitize_key(wp_unslash($_GET['action'])) : '';
+    $post_id = isset($_GET['post']) ? absint($_GET['post']) : 0;
+    if ($action !== 'edit' || !$post_id || get_post_type($post_id) !== 'npa_contact'
+        || !in_array(get_post_status($post_id), ['private', 'draft'], true) || !current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    if (!metadata_exists('post', $post_id, '_npa_contact_read')
+        && !add_post_meta($post_id, '_npa_contact_read', '1', true)
+        && !metadata_exists('post', $post_id, '_npa_contact_read')) {
+        error_log('NPA contact : impossible de marquer le message ' . $post_id . ' comme lu.');
+    }
+
+    npa_contact_update_menu_badge();
+}
+add_action('load-post.php', 'npa_contact_mark_opened_read');
+
 add_action('rest_api_init', function () {
     register_rest_route('custom/v1', '/contact', [
         'methods'             => 'POST',

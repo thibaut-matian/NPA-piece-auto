@@ -13,7 +13,7 @@ Ce projet est un front-end React/Vite prêt à brancher sur votre back-office Wo
 Les fichiers `.env` ne sont pas versionnés. Copiez `.env.example` pour créer les deux fichiers suivants :
 
 - `.env.development` : `VITE_API_URL=/woo-api` (le navigateur passe par le proxy Vite, ce qui évite les erreurs CORS)
-- `.env.production` : `VITE_API_URL=http://localhost/votre-wordpress`, c'est ici que vous renseignerez l'adresse du site woocommerce (cible du proxy en dev, URL de l'API au build)
+- `.env.production` : `VITE_API_URL=http://localhost/votre-wordpress` pour la cible du proxy en dev. Pour un build à déployer, fournir explicitement une API HTTPS ou le proxy `/woo-api`.
 
 Relancez `npm run dev` après chaque modification d'un fichier `.env`.
 
@@ -40,7 +40,17 @@ Tests de regression du changement d'identite : `node --test`.
 
 ## Build
 
-`npm run build`
+Pour un déploiement, définissez `VITE_API_URL` avec l'URL HTTPS de WordPress
+ou `/woo-api` si un proxy HTTPS est configuré, puis lancez `npm run build`.
+Les URL HTTP sont refusées. Pour construire uniquement une version de test locale
+avec l'API localhost, sous PowerShell :
+
+```powershell
+$env:NPA_ALLOW_LOCAL_HTTP_BUILD="1"; npm run build; Remove-Item Env:\NPA_ALLOW_LOCAL_HTTP_BUILD
+```
+
+Ne déployez pas ce build local. Le contrôle du build ne configure ni le HTTPS du
+site, ni celui du proxy : les deux doivent être vérifiés sur l'hébergement.
 
 ## Config wordpress
 
