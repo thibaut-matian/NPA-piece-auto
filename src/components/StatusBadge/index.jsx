@@ -3,6 +3,7 @@ import "./index.scss";
 const labels = {
   pending: "En attente de paiement",
   processing: "En préparation",
+  "npa-ready": "Prête à retirer",
   "on-hold": "En attente",
   completed: "Terminée",
   cancelled: "Annulée",

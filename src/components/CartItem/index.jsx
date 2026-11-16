@@ -1,6 +1,6 @@
 import "./index.scss";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   addProductToCart,
   deleteProductFromCart,
@@ -12,6 +12,9 @@ import { stripHtml } from "../../utils/stripHtml";
 // Une ligne du panier : photo, marque, référence, disponibilité, prix et quantité
 export default function CartItem({ item }) {
   const dispatch = useDispatch();
+  const isPro = useSelector((state) =>
+    state.user.isAuthenticated && state.user.customer?.accountType === "pro",
+  );
 
   // Article ajouté à l'instant : on attend la réponse de WooCommerce
   if (item._optimistic) {
@@ -79,6 +82,11 @@ export default function CartItem({ item }) {
         <span className="cart-item-unit">
           {formatPrice(item.prices?.price, minorUnit)} / unité TTC
         </span>
+        {isPro && (
+          <span className="cart-item-unit">
+            {formatPrice(item.totals?.line_total, minorUnit)} HT pour {item.quantity} unité(s)
+          </span>
+        )}
         <div className="cart-item-actions">
           <div className="cart-item-quantity">
             <button

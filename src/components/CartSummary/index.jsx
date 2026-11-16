@@ -11,6 +11,9 @@ export default function CartSummary() {
   const { site } = useSiteContent();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isPro = useSelector((state) =>
+    state.user.isAuthenticated && state.user.customer?.accountType === "pro",
+  );
   const { totals, shipping_rates: packages, needs_shipping, loading } = useSelector(
     (state) => state.cart,
   );
@@ -22,7 +25,6 @@ export default function CartSummary() {
   const discount = amount("total_discount", "total_discount_tax");
   const fees = amount("total_fees", "total_fees_tax");
   const shipping = amount("total_shipping", "total_shipping_tax");
-  const vatPercent = Math.round(site.vatRate * 100);
 
   const pickupRate = packages
     .flatMap((pack) => pack.shipping_rates.map((rate) => ({ pack, rate })))
@@ -49,18 +51,26 @@ export default function CartSummary() {
     <section className="cart-summary">
       <div className="cart-summary-heading">
         <h2 className="cart-summary-title">Récapitulatif financier</h2>
-        <span className="cart-summary-vat-note">TVA {vatPercent}% incluse</span>
+        <span className="cart-summary-vat-note">TVA incluse</span>
       </div>
 
       <dl className="cart-summary-lines">
         <div className="cart-summary-line">
-          <dt>Total articles brut HT</dt>
-          <dd>{formatPrice(totals.total_items, minorUnit)}</dd>
+          <dt>Total articles TTC avant remise</dt>
+          <dd>{formatPrice(amount("total_items", "total_items_tax"), minorUnit)}</dd>
         </div>
-        <div className="cart-summary-line">
-          <dt>TVA ({vatPercent}%)</dt>
-          <dd>{formatPrice(totals.total_items_tax, minorUnit)}</dd>
-        </div>
+        {isPro && (
+          <>
+            <div className="cart-summary-line">
+              <dt>Total articles HT avant remise</dt>
+              <dd>{formatPrice(totals.total_items, minorUnit)}</dd>
+            </div>
+            <div className="cart-summary-line">
+              <dt>TVA articles avant remise</dt>
+              <dd>{formatPrice(totals.total_items_tax, minorUnit)}</dd>
+            </div>
+          </>
+        )}
         {discount > 0 && (
           <div className="cart-summary-line is-discount">
             <dt>Remise code promo</dt>

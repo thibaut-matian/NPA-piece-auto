@@ -64,6 +64,8 @@ function npa_order_confirmation(WP_REST_Request $request)
         'id'             => $order->get_id(),
         'number'         => $order->get_order_number(),
         'status'         => $order->get_status(),
+        'pickup'         => npa_pickup_details($order),
+        'is_paid'        => $order->is_paid(),
         'date'           => $order->get_date_created() ? $order->get_date_created()->date('c') : null,
         'first_name'     => $order->get_billing_first_name(),
         'payment_method' => $order->get_payment_method(),

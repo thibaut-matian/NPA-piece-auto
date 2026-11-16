@@ -4,6 +4,7 @@ import { selectShippingRateThunk } from "../../thunkActionsCreator/cartThunks";
 import { showToast } from "../../slices/toastSlice";
 import useSiteContent from "../../hooks/useSiteContent";
 import { formatPrice } from "../../utils/formatPrice";
+import { stripHtml } from "../../utils/stripHtml";
 
 // Textes de site.js correspondant à un mode de livraison WooCommerce
 const findTexts = (rate, shippingModes) =>
@@ -68,7 +69,7 @@ export default function CartShipping({ allInStock }) {
                 />
                 <span className="cart-shipping-content">
                   <span className="cart-shipping-heading">
-                    <span className="cart-shipping-name">{rate.name}</span>
+                    <span className="cart-shipping-name">{stripHtml(rate.name)}</span>
                     <span className="cart-shipping-price">{priceLabel}</span>
                   </span>
                   {texts.text && <span className="cart-shipping-text">{texts.text}</span>}

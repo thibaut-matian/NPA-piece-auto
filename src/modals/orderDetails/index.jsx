@@ -3,10 +3,9 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SucessMessage from "../../components/SucessMessage";
 import { apiFetch } from "../../utils/apiFetch";
+import StatusBadge from "../../components/StatusBadge";
+import PickupDeadline from "../../components/PickupDeadline";
 import "./index.scss";
-
-// 1. Cache externe pour persister entre les rendus
-const ordersCache = {};
 
 export default function OrderDetails() {
   const modalProps = useSelector((state) => state.modal.modalProps);
@@ -30,14 +29,6 @@ export default function OrderDetails() {
       return;
     }
 
-    // Si déjà en cache, on l'affiche directement sans charger
-    if (ordersCache[orderId]) {
-      setDetail(ordersCache[orderId]);
-      setLoading(false);
-      setError("");
-      return;
-    }
-
     // 2. Réinitialisation immédiate : purge l'ancien produit et lance le loader
     setDetail(null);
     setLoading(true);
@@ -48,19 +39,23 @@ export default function OrderDetails() {
     async function fetchOrder() {
       try {
         // Le cookie de connexion identifie le client (requête en lecture : pas de code CSRF)
-        const response = await apiFetch(
-          `${import.meta.env.VITE_API_URL}/wp-json/wc/store/v1/order/${orderId}`,
-        );
+        const [response, pickupResponse] = await Promise.all([
+          apiFetch(`${import.meta.env.VITE_API_URL}/wp-json/wc/store/v1/order/${orderId}`),
+          apiFetch(`${import.meta.env.VITE_API_URL}/wp-json/custom/v1/order-confirmation/${orderId}`),
+        ]);
         const data = await response.json();
+        const pickupData = await pickupResponse.json();
         if (!response.ok) {
           throw new Error(
             data.message || "Impossible de récupérer la commande.",
           );
         }
+        if (!pickupResponse.ok) {
+          throw new Error(pickupData.message || "Impossible de récupérer le suivi du retrait.");
+        }
 
-        ordersCache[orderId] = data;
         if (cancelled) return;
-        setDetail(data);
+        setDetail({ ...data, pickup: pickupData.pickup, is_paid: pickupData.is_paid });
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -80,7 +75,7 @@ export default function OrderDetails() {
   if (!detail) return null;
 
   const current = detail;
-  const isPaid = ["processing", "completed"].includes(current.status);
+  const isPaid = current.is_paid;
   const label = current.number ?? current.id;
   const statusText = isPaid
     ? "Paiement confirmé pour la commande n°"
@@ -92,6 +87,8 @@ export default function OrderDetails() {
         {statusText}
         {label}
       </h5>
+      <StatusBadge status={current.status} />
+      <PickupDeadline pickup={current.pickup} />
 
       {!orderId && <SucessMessage order={current} />}
 

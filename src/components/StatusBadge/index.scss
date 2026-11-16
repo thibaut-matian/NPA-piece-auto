@@ -12,6 +12,7 @@
   color: var(--dark-color);
 
   &-processing,
+  &-npa-ready,
   &-completed {
     background-color: var(--success-color);
     color: var(--white-color);

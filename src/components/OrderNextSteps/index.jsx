@@ -1,5 +1,7 @@
 import "./index.scss";
 import useSiteContent from "../../hooks/useSiteContent";
+import { stripHtml } from "../../utils/stripHtml";
+import PickupDeadline from "../PickupDeadline";
 import storeIcon from "../../assets/icons/store.svg";
 import truckIcon from "../../assets/icons/truck.svg";
 import shieldIcon from "../../assets/icons/shield.svg";
@@ -20,16 +22,21 @@ export default function OrderNextSteps({ order }) {
           <img src={isPickup ? storeIcon : truckIcon} alt="" />
         </span>
         <div className="order-next-steps-content">
-          <span className="order-next-steps-label">{order.shipping?.title || "Livraison"}</span>
+          <span className="order-next-steps-label">{stripHtml(order.shipping?.title) || "Livraison"}</span>
           {isPickup ? (
             <>
               <span className="order-next-steps-text">
-                Nous préparons vos pièces et vous prévenons dès qu'elles vous attendent au comptoir :{" "}
+                {order.status === "npa-ready"
+                  ? "Vos pièces sont prêtes à retirer au comptoir : "
+                  : order.status === "completed"
+                    ? "Retrait terminé au comptoir : "
+                    : "Nous préparons vos pièces et vous prévenons dès qu'elles vous attendent au comptoir : "}
                 <strong>
                   {site.address.street}, {site.address.zip} {site.address.city}
                 </strong>
                 .
               </span>
+              <PickupDeadline pickup={order.pickup} />
               <span className="order-next-steps-note">{site.hoursShort}</span>
               <a href={site.mapsHref} target="_blank" rel="noreferrer" className="btn btn-dark order-next-steps-button">
                 Itinéraire GPS
@@ -57,9 +64,11 @@ export default function OrderNextSteps({ order }) {
         <div className="order-next-steps-content">
           <span className="order-next-steps-label">{order.payment_title || "Paiement"}</span>
           <span className="order-next-steps-text">
-            {payAtCounter
+            {payAtCounter && !order.is_paid
               ? "Votre commande est à régler au comptoir lors du retrait, en espèces ou par carte."
-              : "Votre paiement par carte a bien été accepté."}
+              : order.is_paid
+                ? "Votre paiement a bien été accepté."
+                : "Votre paiement est en attente de confirmation."}
           </span>
         </div>
       </div>

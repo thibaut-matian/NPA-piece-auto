@@ -3,17 +3,27 @@
 /**
  * Panier (API WooCommerce Store) :
  * - tant que le client n'a pas saisi d'adresse, les frais de port sont calculés
- *   pour le code postal du comptoir (zone Marseille & PACA) ;
+ *   pour le pays et le code postal du comptoir (zone Marseille & PACA) ;
  * - les frais de port saisis dans l'admin sont des prix TTC ;
  * - le retrait comptoir est le mode de livraison choisi par défaut ;
  * - ajoute la marque de chaque article (extensions.npa.brand) ;
  * - ajoute les seuils de livraison gratuite (extensions.npa.free_shipping).
  */
 
-// Code postal par défaut : celui de la boutique, tant que le client n'en a pas saisi
-add_filter('woocommerce_customer_get_shipping_postcode', function ($postcode) {
-    return $postcode !== '' ? $postcode : get_option('woocommerce_store_postcode', '');
-});
+// Les comptes sans adresse n'héritent pas toujours du pays par défaut des invités.
+// Ces valeurs servent au calcul uniquement : rien n'est enregistré sur le compte.
+foreach (['billing', 'shipping'] as $address_type) {
+    add_filter("woocommerce_customer_get_{$address_type}_country", function ($country) {
+        return $country !== '' ? $country : WC()->countries->get_base_country();
+    });
+}
+
+add_filter('woocommerce_customer_get_shipping_postcode', function ($postcode, $customer) {
+    if ($postcode !== '' || $customer->get_shipping_country() !== WC()->countries->get_base_country()) {
+        return $postcode;
+    }
+    return get_option('woocommerce_store_postcode', '');
+}, 10, 2);
 
 // Frais de port saisis TTC dans l'admin (comme les prix des produits) : WooCommerce les
 // considère HT et ajoute la TVA, on extrait donc la TVA du montant saisi.

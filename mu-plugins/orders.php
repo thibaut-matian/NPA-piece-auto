@@ -28,6 +28,7 @@ function headless_get_current_user_orders($request)
             'id'       => $order->get_id(),
             'number'   => $order->get_order_number(),
             'status'   => $order->get_status(),
+            'pickup'   => npa_pickup_details($order),
             'date'     => $order->get_date_created() ? $order->get_date_created()->date('c') : null,
             'total'    => $order->get_total(),
             'currency' => $order->get_currency(),
